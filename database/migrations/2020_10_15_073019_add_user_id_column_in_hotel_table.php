@@ -15,7 +15,7 @@ class AddUserIdColumnInHotelTable extends Migration
     {
         Schema::table('hotel', function (Blueprint $table) {
             $table->foreignId('user_id')->constrained('users')->after('hotel_picture');
-        });
+        });//
     }
 
     /**
