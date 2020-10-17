@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddUserIdColumnInHotelTable extends Migration
+class AddBedTypeColumnRoomTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddUserIdColumnInHotelTable extends Migration
      */
     public function up()
     {
-        Schema::table('hotel', function (Blueprint $table) {
-            $table->foreignId('user_id')->constrained('users')->after('hotel_picture');
+        Schema::table('room', function (Blueprint $table) {
+            $table->string('bed_type',50)->after('room_type');
         });
     }
 
@@ -25,8 +25,8 @@ class AddUserIdColumnInHotelTable extends Migration
      */
     public function down()
     {
-        Schema::table('hotel', function (Blueprint $table) {
-            $table->dropColumn('user_id');
+        Schema::table('room', function (Blueprint $table) {
+            $table->dropColumn('bed_type');
         });
     }
 }
