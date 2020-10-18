@@ -15,10 +15,12 @@ class CreateRoomTable extends Migration
     {
         Schema::create('room', function (Blueprint $table) {
             $table->id();
+            $table->string('room_type',80);
+            $table->string('bed_type',50);
+            $table->double('room_price',10,2);
+            $table->tinyInteger('guest_capacity');
+            $table->string('room_picture')->nullable();
             $table->foreignId('hotel_id')->constrained('hotel');
-            $table->string('room_type',100);
-            $table->double('room_price',11,2);
-            $table->integer('guest_capacity',false)->length(2);
         });
     }
 
