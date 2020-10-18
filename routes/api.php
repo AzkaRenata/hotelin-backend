@@ -28,3 +28,4 @@ Route::get('/room', 'App\Http\Controllers\RoomController@form');
 Route::post('/room', 'App\Http\Controllers\RoomController@create');
 Route::put('/room/update/{id}', 'App\Http\Controllers\RoomController@update');
 Route::delete('/room/delete/{id}', 'App\Http\Controllers\RoomController@delete');
+Route::get('/room/detail/{id}', 'App\Http\Controllers\RoomController@findRoomType');

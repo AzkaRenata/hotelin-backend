@@ -18,9 +18,13 @@ class RoomController extends Controller
 
         return $hotel;
     }
+  
+    public function findRoomType($id){
+        return room::select('room_type')->where('id', $id)->get();
+    }
 
     public function create(request $request){
-        $room = new room();
+        $room = new room;
         $room->hotel_id = $request->hotel_id;
         $room->room_type = $request->room_type;
         $room->room_price = $request->room_price;
