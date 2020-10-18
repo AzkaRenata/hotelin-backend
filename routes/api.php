@@ -17,3 +17,10 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::get('/booking/done', 'App\Http\Controllers\BookingController@showDoneBookings');
+Route::get('/booking/ongoing', 'App\Http\Controllers\BookingController@showOngoingBookings');
+Route::get('/booking/canceled', 'App\Http\Controllers\BookingController@showCanceledBookings');
+Route::post('/booking', 'App\Http\Controllers\BookingController@create');
+
+Route::get('/booking/done', 'App\Http\Controllers\RoomController@showRooms');
