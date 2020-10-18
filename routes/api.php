@@ -20,9 +20,10 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 Route::get('/room','App\Http\Controllers\RoomController@index');
 Route::get('/room/{id}','App\Http\Controllers\RoomController@findRoomType');
-
 Route::post('/room','App\Http\Controllers\RoomController@create');
-
 Route::put('/room/{id}','App\Http\Controllers\RoomController@update');
-
 Route::delete('/room/{id}','App\Http\Controllers\RoomController@delete');
+
+Route::get('/hotel/{id}','App\Http\Controllers\RoomController@findHotelType');
+
+Route::get('/booking/{id}','App\Http\Controllers\RoomController@findBookingType');
