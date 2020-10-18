@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\room;
 use App\Models\hotel;
+use App\Models\booking;
+
 
 class RoomController extends Controller
 {
