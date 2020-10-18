@@ -1,15 +1,16 @@
 <?php
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Models\booking;
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\DB;
-use App\Models\booking;
-use Illuminate\Http\Request;
-
-
 class BookingController extends Controller
 {
-    //
+    public function findBookingType($id){
+        return booking::select('user_id','room_id')->where('id', $id)->get();
+    }
+  
     public function showOngoingBookings(){
         return booking::where('status', '=', 1);
     }
@@ -22,5 +23,4 @@ class BookingController extends Controller
     public function showCanceledBookings(){
         return booking::where('status', '=', 3);
     }
-    
 }
