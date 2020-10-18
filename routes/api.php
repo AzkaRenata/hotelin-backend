@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\HotelController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -18,11 +19,13 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('/room','App\Http\Controllers\RoomController@index');
-Route::get('/room/{id}','App\Http\Controllers\RoomController@findRoomType');
+Route::get('/hotel', 'App\Http\Controllers\HotelController@index');
+Route::post('/hotel', 'App\Http\Controllers\HotelController@create');
+Route::put('/hotel/update/{id}', 'App\Http\Controllers\HotelController@update');
+Route::delete('/hotel/delete/{id}', 'App\Http\Controllers\HotelController@delete');
 
-Route::post('/room','App\Http\Controllers\RoomController@create');
-
-Route::put('/room/{id}','App\Http\Controllers\RoomController@update');
-
-Route::delete('/room/{id}','App\Http\Controllers\RoomController@delete');
+Route::get('/room', 'App\Http\Controllers\RoomController@form');
+Route::post('/room', 'App\Http\Controllers\RoomController@create');
+Route::put('/room/update/{id}', 'App\Http\Controllers\RoomController@update');
+Route::delete('/room/delete/{id}', 'App\Http\Controllers\RoomController@delete');
+Route::get('/room/detail/{id}', 'App\Http\Controllers\RoomController@findRoomType');
