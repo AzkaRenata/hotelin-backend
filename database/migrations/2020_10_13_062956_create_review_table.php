@@ -18,8 +18,8 @@ class CreateReviewTable extends Migration
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('hotel_id')->constrained('hotel');
             $table->integer('rating',false)->length(1);
-            $table->string('review_desc')->nullable();
-            $table->timestamp('review_time')->nullable();
+            $table->string('review_desc');
+            $table->timestamps();
         });
     }
 
