@@ -12,6 +12,10 @@ class RoomController extends Controller
     public function index(){
         return room::all();
     }
+  
+    public function showRooms($hotel_id){
+        return booking::where('hotel_id', '=', $hotel_id);
+    }
 
     public function form(){
         $hotel = hotel::all();
