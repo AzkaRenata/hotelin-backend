@@ -8,7 +8,6 @@ use App\Models\room;
 use App\Models\hotel;
 use App\Models\booking;
 
-
 class RoomController extends Controller
 {
     public function index(){

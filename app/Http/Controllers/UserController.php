@@ -6,7 +6,9 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use JWTAuth;
+use Tymon\JWTAuth\Facades\JWTAuth;
+use Tymon\JWTAuth\Exceptions\TokenInvalidException;
+use Tymon\JWTAuth\Exceptions\TokenExpiredException;
 use Tymon\JWTAuth\Exceptions\JWTException;
 
 class UserController extends Controller
@@ -63,15 +65,15 @@ class UserController extends Controller
                 return response()->json(['user_not_found'], 404);
             }
 
-        } catch (Tymon\JWTAuth\Exceptions\TokenExpiredException $e) {
+        } catch (TokenExpiredException $e) {
 
             return response()->json(['token_expired'], $e->getStatusCode());
 
-        } catch (Tymon\JWTAuth\Exceptions\TokenInvalidException $e) {
+        } catch (TokenInvalidException $e) {
 
             return response()->json(['token_invalid'], $e->getStatusCode());
 
-        } catch (Tymon\JWTAuth\Exceptions\JWTException $e) {
+        } catch (JWTException $e) {
 
             return response()->json(['token_absent'], $e->getStatusCode());
 

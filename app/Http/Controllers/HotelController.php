@@ -11,14 +11,11 @@ class HotelController extends Controller
     public function index(){
         return hotel::all();
     }
-  
+
     public function findHotelType($id){
         return hotel::select('hotel_name')->where('id', $id)->get();
     }
 
-    public function form(){
-        
-    }
     public function create(request $request){
         $hotel = new hotel();
         $hotel->hotel_name = $request->input('hotel_name');
