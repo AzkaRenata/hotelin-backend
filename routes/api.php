@@ -17,3 +17,12 @@ use Illuminate\Support\Facades\Route;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::get('/room','App\Http\Controllers\RoomController@index');
+Route::get('/room/{id}','App\Http\Controllers\RoomController@findRoomType');
+
+Route::post('/room','App\Http\Controllers\RoomController@create');
+
+Route::put('/room/{id}','App\Http\Controllers\RoomController@update');
+
+Route::delete('/room/{id}','App\Http\Controllers\RoomController@delete');
