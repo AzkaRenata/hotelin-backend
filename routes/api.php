@@ -37,3 +37,7 @@ Route::post('/hotel', 'App\Http\Controllers\HotelController@create');
 Route::put('/hotel/update/{id}', 'App\Http\Controllers\HotelController@update');
 Route::delete('/hotel/delete/{id}', 'App\Http\Controllers\HotelController@delete');
 Route::get('/hotel/detail/{id}','App\Http\Controllers\RoomController@findHotelType');
+
+Route::post('register', 'App\Http\Controllers\UserController@register');
+Route::post('login', 'App\Http\Controllers\UserController@login');
+Route::get('user', 'App\Http\Controllers\UserController@getAuthenticatedUser')->middleware('jwt.verify');
