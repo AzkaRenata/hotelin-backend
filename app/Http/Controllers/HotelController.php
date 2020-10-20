@@ -18,9 +18,10 @@ class HotelController extends Controller
 
     public function create(request $request){
         $hotel = new hotel();
-        $hotel->hotel_name = $request->input('hotel_name');
-        $hotel->hotel_location = $request->input('hotel_location');
-        $hotel->hotel_desc = $request->input('hotel_desc');
+        $hotel->hotel_name = $request->hotel_name;
+        $hotel->hotel_location = $request->hotel_location;
+        $hotel->hotel_desc = $request->hotel_desc;
+        $hotel->user_id = $request->user_id;
         $hotel->save();
 
         return "Data berhasil disimpan";
@@ -29,9 +30,10 @@ class HotelController extends Controller
     public function update(request $request, $id){
         $hotel = hotel::find($id);
         
-        $hotel->hotel_name = $request->input('hotel_name');
-        $hotel->hotel_location = $request->input('hotel_location');
-        $hotel->hotel_desc = $request->input('hotel_desc');
+        $hotel->hotel_name = $request->hotel_name;
+        $hotel->hotel_location = $request->hotel_location;
+        $hotel->hotel_desc = $request->hotel_desc;
+        $hotel->user_id = $request->user_id;
         $hotel->save();
 
         return "Data berhasil diubah";
