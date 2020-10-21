@@ -28,6 +28,47 @@ class UserController extends Controller
         return response()->json(compact('token'));
     }
 
+    public function register(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:6|confirmed',
+            'user_level' => 'required|integer|max:1',
+        ]);
+
+        if($validator->fails()){
+            return response()->json($validator->errors()->toJson(), 400);
+        }
+
+
+        $user = new User;
+        $user->username = $request->username;
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->password = Hash::make($request->password);
+        $user->user_level = $request->user_level;
+        $user->gender = $request->gender;
+        $user->telp = $request->telp;
+        $user->address = $request->address;
+
+        if(!empty($request->file('user_picture'))) {
+            $file = $request->file('user_picture');
+            $upload_dest = 'user_picture';
+            $filename = $file->getClientOriginalName();
+            //$extension = $file->getClientOriginalExtension();
+            $file->move($upload_dest, $filename);
+
+            $user->user_picture = $upload_dest.'/'.$filename;
+
+        } 
+        
+        $user->save();
+        $token = JWTAuth::fromUser($user);
+        return response()->json(compact('user','token'),201);
+    }
+
     public function getAuthenticatedUser()
     {
         try {
