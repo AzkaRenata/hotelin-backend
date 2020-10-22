@@ -3,6 +3,7 @@
 use App\Http\Controllers\HotelController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -38,6 +39,12 @@ Route::put('/hotel/update/{id}', 'App\Http\Controllers\HotelController@update');
 Route::delete('/hotel/delete/{id}', 'App\Http\Controllers\HotelController@delete');
 Route::get('/hotel/detail/{id}','App\Http\Controllers\RoomController@findHotelType');
 
-Route::post('register', 'App\Http\Controllers\UserController@register');
-Route::post('login', 'App\Http\Controllers\UserController@login');
-Route::get('user', 'App\Http\Controllers\UserController@getAuthenticatedUser')->middleware('jwt.verify');
+Route::post('/user/register', [UserController::class, 'register']);
+Route::post('/user/login', [UserController::class, 'login']);
+Route::middleware('jwt.verify')->group(function () {     
+	Route::get('user/', [UserController::class, 'index']);
+    Route::post('/user/update-basic/{id}', [UserController::class, 'updateBasic']);
+    Route::post('/user/update-picture/{id}', [UserController::class, 'updatePicture']);
+    Route::post('/user/update-password/{id}', [UserController::class, 'updatePasswrod']);
+    Route::delete('/user/delete/{id}', [UserController::class, 'delete']);
+});
