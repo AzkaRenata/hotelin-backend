@@ -45,6 +45,6 @@ Route::middleware('jwt.verify')->group(function () {
 	Route::get('user/', [UserController::class, 'index']);
     Route::post('/user/update-basic/{id}', [UserController::class, 'updateBasic']);
     Route::post('/user/update-picture/{id}', [UserController::class, 'updatePicture']);
-    Route::post('/user/update-password/{id}', [UserController::class, 'updatePasswrod']);
+    Route::post('/user/update-password/{id}', [UserController::class, 'updatePassword']);
     Route::delete('/user/delete/{id}', [UserController::class, 'delete']);
 });
