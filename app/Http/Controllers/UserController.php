@@ -104,7 +104,7 @@ class UserController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'username' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
+            'email' => 'required|string|email|max:255|unique:users,id,$id',
             'user_level' => 'required|integer|max:9',
         ]);
 
@@ -113,7 +113,6 @@ class UserController extends Controller
         }
 
         $user = User::find($id);
-        Storage::delete('$user->user_picture');
 
         $user->username = $request->username;
         $user->name = $request->name;
@@ -127,16 +126,6 @@ class UserController extends Controller
             $user->password = Hash::make($request->password);
         }
 
-        if(!empty($request->file('user_picture'))) {
-            $file = $request->file('user_picture');
-            $upload_dest = 'user_picture';
-            //$filename = $file->getClientOriginalName();
-            $extension = $file->extension();
-            $path = $file->storeAs(
-                $upload_dest, $request->username.'.'.$extension
-            );
-            $user->user_picture = $path;
-        } 
         $user->save();
 
         return "Data berhasil diupdate";
@@ -167,12 +156,13 @@ class UserController extends Controller
 
     public function updatePassword(Request $request, $id){
         $validator = Validator::make($request->all(), [
-            'email' => 'required|string|email|max:255|unique:users',
+            'email' => 'required|string|email|max:255|unique:users,id,$id',
             'password' => 'required|string|min:6|confirmed',
         ]);
         if($validator->fails()){
             return response()->json($validator->errors()->toJson(), 400);
         }
+        $user = User::find($id);
         $user->password = Hash::make($request->password);
         $user->save();
 
@@ -183,7 +173,7 @@ class UserController extends Controller
     public function delete($id){
 
         $user = User::find($id);
-        File::delete($user->user_picture);
+        Storage::delete('storage/'.$user->user_picture);
         $user->delete();
 
         return "Data berhasil dihapus";
