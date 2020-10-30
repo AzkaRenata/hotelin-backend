@@ -42,9 +42,10 @@ Route::get('/hotel/detail/{id}','App\Http\Controllers\HotelController@findHotelT
 Route::post('/user/register', [UserController::class, 'register']);
 Route::post('/user/login', [UserController::class, 'login']);
 Route::middleware('jwt.verify')->group(function () {     
-	Route::get('user/', [UserController::class, 'index']);
-    Route::post('/user/update-basic/{id}', [UserController::class, 'updateBasic']);
-    Route::post('/user/update-picture/{id}', [UserController::class, 'updatePicture']);
-    Route::post('/user/update-password/{id}', [UserController::class, 'updatePassword']);
-    Route::delete('/user/delete/{id}', [UserController::class, 'delete']);
+	Route::get('user', [UserController::class, 'index']);
+    Route::post('/user/update-basic', [UserController::class, 'updateBasic']);
+    Route::post('/user/update-picture', [UserController::class, 'updatePicture']);
+    Route::post('/user/update-password', [UserController::class, 'updatePassword']);
+    Route::delete('/user/delete', [UserController::class, 'delete']);
+    Route::get('user/logout', [UserController::class, 'logout']);
 });

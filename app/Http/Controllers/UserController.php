@@ -27,7 +27,7 @@ class UserController extends Controller
             return response()->json(['error' => 'could_not_create_token'], 500);
         }
 
-        return response()->json(compact('token'));
+        return response()->json(compact('token'),200);
     }
 
     public function index()
@@ -52,7 +52,14 @@ class UserController extends Controller
 
         }
 
-        return response()->json(compact('user'));
+        return response()->json(compact('user'),200);
+    }
+
+
+    public function logout()
+    {
+        auth()->logout();
+        return response()->json(['message' => 'Successfully logged out'],200);
     }
 
 
@@ -64,7 +71,7 @@ class UserController extends Controller
             'username' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6|confirmed',
-            'user_level' => 'required|integer|max:9',
+            'user_level' => 'required|integer|max:2|min:1',
             'user_picture' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
@@ -96,16 +103,37 @@ class UserController extends Controller
         
         $user->save();
         $token = JWTAuth::fromUser($user);
-        return response()->json(compact('user','token'),201);
+        return response()->json(compact('user','token'),200);
     }
 
-    public function updateBasic(Request $request, $id){
-        
+    public function updateBasic(Request $request){
+        try {
+
+            if (! $userData = JWTAuth::parseToken()->authenticate()) {
+                return response()->json(['user_not_found'], 404);
+            }
+
+        } catch (TokenExpiredException $e) {
+
+            return response()->json(['token_expired'], $e->getStatusCode());
+
+        } catch (TokenInvalidException $e) {
+
+            return response()->json(['token_invalid'], $e->getStatusCode());
+
+        } catch (JWTException $e) {
+
+            return response()->json(['token_absent'], $e->getStatusCode());
+
+        }
+
+        $id = $userData->id;
+
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'username' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,id,$id',
-            'user_level' => 'required|integer|max:9',
+            'user_level' => 'required|integer|min:1|max:2',
         ]);
 
         if($validator->fails()){
@@ -128,10 +156,32 @@ class UserController extends Controller
 
         $user->save();
 
-        return "Data berhasil diupdate";
+        return response()->json(compact('user'));
     }
 
-    public function updatePicture(Request $request, $id){
+    public function updatePicture(Request $request){
+        try {
+
+            if (! $userData = JWTAuth::parseToken()->authenticate()) {
+                return response()->json(['user_not_found'], 404);
+            }
+
+        } catch (TokenExpiredException $e) {
+
+            return response()->json(['token_expired'], $e->getStatusCode());
+
+        } catch (TokenInvalidException $e) {
+
+            return response()->json(['token_invalid'], $e->getStatusCode());
+
+        } catch (JWTException $e) {
+
+            return response()->json(['token_absent'], $e->getStatusCode());
+
+        }
+
+        $id = $userData->id;
+
         $validator = Validator::make($request->all(), [
             'user_picture' => 'required|image|mimes:jpeg,png|max:2048',
         ]);
@@ -151,10 +201,32 @@ class UserController extends Controller
         $user->user_picture = $path;
         $user->save();
 
-        return "Picture diupdate";
+        return response()->json(compact('user'));
     }
 
-    public function updatePassword(Request $request, $id){
+    public function updatePassword(Request $request){
+        try {
+
+            if (! $userData = JWTAuth::parseToken()->authenticate()) {
+                return response()->json(['user_not_found'], 404);
+            }
+
+        } catch (TokenExpiredException $e) {
+
+            return response()->json(['token_expired'], $e->getStatusCode());
+
+        } catch (TokenInvalidException $e) {
+
+            return response()->json(['token_invalid'], $e->getStatusCode());
+
+        } catch (JWTException $e) {
+
+            return response()->json(['token_absent'], $e->getStatusCode());
+
+        }
+
+        $id = $userData->id;
+
         $validator = Validator::make($request->all(), [
             'email' => 'required|string|email|max:255|unique:users,id,$id',
             'password' => 'required|string|min:6|confirmed',
@@ -166,17 +238,41 @@ class UserController extends Controller
         $user->password = Hash::make($request->password);
         $user->save();
 
-        return "Password diupdate";
+        auth()->logout();
+
+        return response()->json(['message' => 'Password Update Successfully'],200);
 
     }
 
-    public function delete($id){
+    public function delete(){
 
+        try {
+
+            if (! $userData = JWTAuth::parseToken()->authenticate()) {
+                return response()->json(['user_not_found'], 404);
+            }
+
+        } catch (TokenExpiredException $e) {
+
+            return response()->json(['token_expired'], $e->getStatusCode());
+
+        } catch (TokenInvalidException $e) {
+
+            return response()->json(['token_invalid'], $e->getStatusCode());
+
+        } catch (JWTException $e) {
+
+            return response()->json(['token_absent'], $e->getStatusCode());
+
+        }
+
+        $id = $userData->id;
+        
         $user = User::find($id);
         Storage::delete('storage/'.$user->user_picture);
         $user->delete();
 
-        return "Data berhasil dihapus";
+        return response()->json(['message' => 'Delete Successfully'],200);
     }
     
 }
