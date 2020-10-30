@@ -37,7 +37,7 @@ Route::get('/hotel', 'App\Http\Controllers\HotelController@index');
 Route::post('/hotel', 'App\Http\Controllers\HotelController@create');
 Route::put('/hotel/update/{id}', 'App\Http\Controllers\HotelController@update');
 Route::delete('/hotel/delete/{id}', 'App\Http\Controllers\HotelController@delete');
-Route::get('/hotel/detail/{id}','App\Http\Controllers\RoomController@findHotelType');
+Route::get('/hotel/detail/{id}','App\Http\Controllers\HotelController@findHotelType');
 
 Route::post('/user/register', [UserController::class, 'register']);
 Route::post('/user/login', [UserController::class, 'login']);
