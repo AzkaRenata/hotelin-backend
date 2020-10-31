@@ -3,10 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Models\room;
 use App\Models\hotel;
 use App\Models\booking;
+use App\Models\room_facility;
+use Illuminate\Support\Facades\Auth;
 
 class RoomController extends Controller
 {
@@ -25,19 +26,36 @@ class RoomController extends Controller
     }
   
     public function findRoomType($id){
-        return room::select('room_type')->where('id', $id)->get();
+        $room = room::select('*')->where('id', $id)->first(); 
+        $facility = room_facility::select('*')->where('room_id', $room->id)->get();
+        
+        echo $room;
+        echo $room->id;
+        echo $facility;
     }
 
     public function create(request $request){
         $room = new room;
-        $room->hotel_id = $request->hotel_id;
-        $room->room_type = $request->room_type;
-        $room->bed_type = $request->bed_type;
-        $room->room_price = $request->room_price;
-        $room->guest_capacity = $request->guest_capacity;
-        $room->save();
+        $user = Auth::user();
+        
+        $checkHotel = hotel::firstOrNew([
+            'user_id' => $user->id
+        ]);
 
-        return "Data berhasil disimpan";
+        if($user->user_level == 1 && $checkHotel->exists){
+            $hotel = hotel::where('user_id', '=', $user->id)->first();
+
+            $room->hotel_id = $hotel->id;
+            $room->room_type = $request->room_type;
+            $room->bed_type = $request->bed_type;
+            $room->room_price = $request->room_price;
+            $room->guest_capacity = $request->guest_capacity;
+            $room->save();
+
+            return $room;
+        }else{
+            return "Akses Ditolak";
+        }
     }
 
     public function uploadPicture(){
@@ -46,19 +64,31 @@ class RoomController extends Controller
 
     public function update(request $request, $id){
         $room = room::find($id);
-        $room->hotel_id = $request->hotel_id;
-        $room->room_type = $request->room_type;
-        $room->room_price = $request->room_price;
-        $room->guest_capacity = $request->guest_capacity;
-        $room->save();
+        $user = Auth::user();
 
-        return "Data berhasil diubah";
+        if($user->user_level == 1 && $user->id == $room->hotel_id->id){
+            $room->hotel_id = $request->hotel_id;
+            $room->room_type = $request->room_type;
+            $room->room_price = $request->room_price;
+            $room->guest_capacity = $request->guest_capacity;
+            $room->save();
+
+            return $room;
+        }else{
+            return "Akses Ditolak";
+        }
     }
 
     public function delete($id){
-        $hotel = room::find($id);
-        $hotel->delete();
+        $room = room::find($id);
+        $user = Auth::user();
 
-        return "Data berhasil dihapus";
+        if($user->id == $room->hotel_id->id){
+            $room->delete();
+
+            return "Data berhasil dihapus";
+        }else{
+            return "Akses Ditolak";
+        }
     }
 }

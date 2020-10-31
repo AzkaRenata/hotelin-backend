@@ -10,4 +10,5 @@ class facility_category extends Model
     use HasFactory;
 
     protected $table = 'facility_category';
+    public $timestamps = false;
 }

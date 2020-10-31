@@ -10,4 +10,5 @@ class room_facility extends Model
     use HasFactory;
 
     protected $table = 'room_facility';
+    public $timestamps = false;
 }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\booking;
+use Illuminate\Support\Facades\Auth;
 
 class BookingController extends Controller
 {
@@ -13,26 +14,46 @@ class BookingController extends Controller
 
     public function create(request $request){
         $booking = new booking();
-        $booking->user_id = $booking->user_id;
-        $booking->room_id = $booking->room_id;
-        $booking->booking_status = $booking->booking_status;
-        $booking->check_in = $booking->check_in;
-        $booking->check_out = $booking->check_out;
-        $booking->booking_time = $booking->booking_time;
+        $user = Auth::user();
+
+        $booking->user_id = $user->id;
+        $booking->room_id = $request->room_id;
+        $booking->booking_status = 1;
+        $booking->check_in = $request->check_in;
+        $booking->check_out = $request->check_out;
+        $booking->booking_time = now();
         $booking->save();
 
-        return "Data berhasil disimpan";
+        return $booking::all();
+    }
+
+    public function finishBooking(request $request, $id){
+        $booking = booking::find($id);
+        
+        $booking->booking_status = 2;
+        $booking->save();
+
+        return $booking::all();
+    }
+
+    public function cancelBooking(request $request, $id){
+        $booking = booking::find($id);
+        
+        $booking->booking_status = 3;
+        $booking->save();
+
+        return $booking::all();
     }
 
     public function update(request $request, $id){
         $booking = booking::find($id);
+        $user = Auth::user();
         
-        $booking->user_id = $booking->user_id;
-        $booking->room_id = $booking->room_id;
-        $booking->booking_status = $booking->booking_status;
-        $booking->check_in = $booking->check_in;
-        $booking->check_out = $booking->check_out;
-        $booking->booking_time = $booking->booking_time;
+        $booking->user_id = $user->id;
+        $booking->room_id = $request->room_id;
+        $booking->booking_status = $request->booking_status;
+        $booking->check_in = $request->check_in;
+        $booking->check_out = $request->check_out;
         $booking->save();
 
         return "Data berhasil diubah";

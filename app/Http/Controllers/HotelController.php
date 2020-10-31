@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Models\hotel;
+use Illuminate\Support\Facades\Auth;
 
 class HotelController extends Controller
 {
@@ -13,36 +13,57 @@ class HotelController extends Controller
     }
 
     public function findHotelType($id){
-        return hotel::select('hotel_name')->where('id', $id)->get();
+        return hotel::select()->where('id', $id)->get();
     }
 
     public function create(request $request){
         $hotel = new hotel();
-        $hotel->hotel_name = $request->hotel_name;
-        $hotel->hotel_location = $request->hotel_location;
-        $hotel->hotel_desc = $request->hotel_desc;
-        $hotel->user_id = $request->user_id;
-        $hotel->save();
+        $user = Auth::user();
+        
+        $checkUser = hotel::firstOrNew([
+            'user_id' => $user->id
+        ]);
+        
+        if($user->user_level == 1 && !$checkUser->exists){
+            $hotel->hotel_name = $request->hotel_name;
+            $hotel->hotel_location = $request->hotel_location;
+            $hotel->hotel_desc = $request->hotel_desc;
+            $hotel->user_id = $user->id;
+            $hotel->save();
 
-        return "Data berhasil disimpan";
+            return $hotel;
+        }else{
+            return "Sudah ada Hotel";
+        }
     }
 
     public function update(request $request, $id){
         $hotel = hotel::find($id);
-        
-        $hotel->hotel_name = $request->hotel_name;
-        $hotel->hotel_location = $request->hotel_location;
-        $hotel->hotel_desc = $request->hotel_desc;
-        $hotel->user_id = $request->user_id;
-        $hotel->save();
+        $user = Auth::user();
 
-        return "Data berhasil diubah";
+        if($user->user_level == 1 && $user->id == $hotel->user_id){
+            $hotel->hotel_name = $request->hotel_name;
+            $hotel->hotel_location = $request->hotel_location;
+            $hotel->hotel_desc = $request->hotel_desc;
+            $hotel->user_id = $request->user_id;
+            $hotel->save();
+
+            return $hotel;
+        }else{
+            return "Akses Ditolak";
+        }
     }
 
     public function delete($id){
         $hotel = hotel::find($id);
-        $hotel->delete();
+        $user = Auth::user();
 
-        return "Data berhasil dihapus";
+        if($user->user_level == 1 && $user->id == $hotel->user_id){
+            $hotel->delete();
+
+            return "Data berhasil dihapus";
+        }else{
+            return "Akses Ditolak";
+        }
     }
 }

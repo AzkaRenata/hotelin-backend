@@ -16,7 +16,7 @@ class CreateFacilityCategoryTable extends Migration
         Schema::create('facility_category', function (Blueprint $table) {
             $table->id();
             $table->string('facility_name',50);
-            $table->string('facility_icon');
+            $table->string('facility_icon')->nullable();
         });
     }
 
