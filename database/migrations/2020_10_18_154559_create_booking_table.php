@@ -17,8 +17,10 @@ class CreateBookingTable extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained('users');
             $table->foreignId('room_id')->constrained('room');
+            $table->tinyInteger('booking_status');
             $table->dateTime('check_in', 0);
             $table->dateTime('check_out', 0);
+            $table->timestamp('booking_time', 0)->nullable();
         });
     }
 
@@ -29,6 +31,6 @@ class CreateBookingTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('facility_booking');
+        Schema::dropIfExists('booking');
     }
 }

@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateReviewTable extends Migration
+class CreateHotelTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,13 +13,13 @@ class CreateReviewTable extends Migration
      */
     public function up()
     {
-        Schema::create('review', function (Blueprint $table) {
+        Schema::create('hotel', function (Blueprint $table) {
             $table->id();
+            $table->string('hotel_name',50);
+            $table->string('hotel_location');
+            $table->string('hotel_desc')->nullable();
+            $table->string('hotel_picture')->nullable();
             $table->foreignId('user_id')->constrained('users');
-            $table->foreignId('hotel_id')->constrained('hotel');
-            $table->integer('rating',false)->length(1);
-            $table->string('review_desc');
-            $table->timestamps();
         });
     }
 
@@ -30,6 +30,6 @@ class CreateReviewTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('facility_review');
+        Schema::dropIfExists('hotel');
     }
 }

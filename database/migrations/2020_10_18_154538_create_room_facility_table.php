@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateResponseTable extends Migration
+class CreateRoomFacilityTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,11 @@ class CreateResponseTable extends Migration
      */
     public function up()
     {
-        Schema::create('response', function (Blueprint $table) {
+        Schema::create('room_facility', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('review_id')->constrained('review');
-            $table->string('response_desc');
+            $table->foreignId('room_id')->constrained('room');
+            $table->foreignId('facility_category_id')->constrained('facility_category');
+            $table->string('description')->nullable();
         });
     }
 
@@ -27,6 +28,6 @@ class CreateResponseTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('facility_response');
+        Schema::dropIfExists('room_facility');
     }
 }
