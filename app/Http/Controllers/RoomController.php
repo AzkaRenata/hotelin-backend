@@ -8,6 +8,8 @@ use App\Models\hotel;
 use App\Models\booking;
 use App\Models\room_facility;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class RoomController extends Controller
 {
@@ -50,6 +52,23 @@ class RoomController extends Controller
             $room->bed_type = $request->bed_type;
             $room->room_price = $request->room_price;
             $room->guest_capacity = $request->guest_capacity;
+            if(!empty($request->file('room_picture'))) {
+
+                $validator = Validator::make($request->all(), [
+                    'room_picture' => 'image|mimes:jpeg,png,jpg|max:2048',
+                ]);
+
+                if($validator->fails()){
+                    return response()->json($validator->errors()->toJson(), 400);
+                }
+
+                $file = $request->file('room_picture');
+                $upload_dest = 'room_picture';
+                $extension = $file->extension();
+                $path = $file->store($upload_dest);
+                $room->room_picture = $path;
+
+            }
             $room->save();
 
             return $room;
@@ -58,19 +77,58 @@ class RoomController extends Controller
         }
     }
 
-    public function uploadPicture(){
+    public function uploadPicture(Request $request, $id){
+        $user = Auth::user();
+        $room = room::find($id);
+        if(!empty($request->file('room_picture'))) {
 
+            $validator = Validator::make($request->all(), [
+                'room_picture' => 'image|mimes:jpeg,png,jpg|max:2048',
+            ]);
+
+            if($validator->fails()){
+                return response()->json($validator->errors()->toJson(), 400);
+            }
+            unlink('storage/'.$room->room_picture);
+            if($user->id == $room->hotel->user_id && $user->user_level == 1){
+                $file = $request->file('room_picture');
+                $upload_dest = 'room_picture';
+                $extension = $file->extension();
+                $path = $file->store($upload_dest);
+                $room->room_picture = $path;
+
+            }
+            $room->save();
+        }
+        
     }
 
-    public function update(request $request, $id){
+    public function update(Request $request, $id){
         $room = room::find($id);
         $user = Auth::user();
 
-        if($user->user_level == 1 && $user->id == $room->hotel_id->id){
+        if($user->user_level == 1 && $user->id == $room->hotel->user_id){
             $room->hotel_id = $request->hotel_id;
             $room->room_type = $request->room_type;
             $room->room_price = $request->room_price;
             $room->guest_capacity = $request->guest_capacity;
+
+            if(!empty($request->file('room_picture'))) {
+                $validator = Validator::make($request->all(), [
+                    'room_picture' => 'image|mimes:jpeg,png,jpg|max:2048',
+                ]);
+
+                if($validator->fails()){
+                    return response()->json($validator->errors()->toJson(), 400);
+                }
+                unlink('storage/'.$room->room_picture);
+                $file = $request->file('room_picture');
+                $upload_dest = 'room_picture';
+                $extension = $file->extension();
+                $path = $file->store($upload_dest);
+                $room->room_picture = $path;
+
+            }
             $room->save();
 
             return $room;
@@ -83,7 +141,8 @@ class RoomController extends Controller
         $room = room::find($id);
         $user = Auth::user();
 
-        if($user->id == $room->hotel_id->id){
+        if($user->id == $room->hotel->user_id && $user->user_level == 1){
+            unlink('storage/'.$room->room_picture);
             $room->delete();
 
             return "Data berhasil dihapus";

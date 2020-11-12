@@ -11,4 +11,9 @@ class room extends Model
 
     protected $table = 'room';
     public $timestamps = false;
+
+    public function hotel()
+    {
+        return $this->belongsTo('App\Models\hotel');
+    }
 }
