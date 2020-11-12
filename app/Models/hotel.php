@@ -25,4 +25,9 @@ class hotel extends Model
     {
         return $this->hasMany('App\Models\room');
     }
+
+    public function reviews()
+    {
+        return $this->hasMany('App\Models\Review');
+    }
 }

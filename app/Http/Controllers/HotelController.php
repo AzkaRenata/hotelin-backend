@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\hotel;
+use App\Models\room_facility;
+use App\Models\facility_category;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
 
@@ -22,7 +25,40 @@ class HotelController extends Controller
         $user = Auth::user();
         $hotel = hotel::select()->where('user_id', $user->id)->get();
         if($user->user_level == 1){
-            return $hotel;
+            return json_encode($hotel);
+        } else {
+            return "akses ditolak";
+        }
+    }
+
+    public function getHotelFacilities(){
+        $user = Auth::user();
+        $hotel_id = $user->hotel->id;
+
+        if($user->user_level == 1){
+            $fac = DB::table('room')
+                ->join('room_facility','room.id','=','room_facility.room_id')
+                ->join('facility_category','facility_category.id','=','room_facility.facility_category_id')
+                ->where('hotel_id',$hotel_id)
+                ->distinct('facility_category.id')
+                ->select('facility_category.*')
+                ->get();
+            return json_encode($fac);
+        } else {
+            return "akses ditolak";
+        }
+    }
+
+    public function getHotelPrice(){
+        $user = Auth::user();
+        $hotel_id = $user->hotel->id;
+
+        if($user->user_level == 1){
+            $price = DB::table('hotel')
+                ->join('room','hotel.id','=','room.hotel_id')
+                ->where('hotel_id',$hotel_id)
+                ->min('room_price');
+            return json_encode($price);
         } else {
             return "akses ditolak";
         }
@@ -96,9 +132,9 @@ class HotelController extends Controller
         
     }
 
-    public function update(request $request, $id){
-        $hotel = hotel::find($id);
+    public function update(request $request){
         $user = Auth::user();
+        $hotel = $user->hotel;
 
         $validator = Validator::make($request->all(), [
             'user_picture' => 'image|mimes:jpeg,png,jpg|max:2048',
