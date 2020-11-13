@@ -11,4 +11,9 @@ class facility_category extends Model
 
     protected $table = 'facility_category';
     public $timestamps = false;
+
+    public function room_facilities()
+    {
+        return $this->hasMany('App\Models\room_facility');
+    }
 }

@@ -17,6 +17,16 @@ class RoomController extends Controller
         return room::all();
     }
   
+    public function getHotelRoom(){
+        $user = Auth::user();
+        if($user->user_level == 1){
+            $rooms = $user->hotel->rooms;
+            return json_encode($rooms);
+        } else {
+            return "akses ditolak";
+        }
+    }
+
     public function showRooms($hotel_id){
         return booking::where('hotel_id', '=', $hotel_id);
     }

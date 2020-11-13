@@ -11,4 +11,14 @@ class room_facility extends Model
 
     protected $table = 'room_facility';
     public $timestamps = false;
+
+    public function room()
+    {
+        return $this->belongsTo('App\Models\room');
+    }
+
+    public function facility_category()
+    {
+        return $this->belongsTo('App\Models\facility_category');
+    }
 }

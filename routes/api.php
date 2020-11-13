@@ -8,6 +8,7 @@ use App\Http\Controllers\RoomController;
 use App\Http\Controllers\RoomFacilityController;
 use App\Http\Controllers\FacilityCategoryController;
 use App\Http\Controllers\BookingController;
+use App\Http\Controllers\ReviewController;
 
 
 /*
@@ -40,11 +41,13 @@ Route::middleware('jwt.verify')->group(function () {
 
     Route::get('/hotel', [HotelController::class,'index']);
     Route::post('/hotel', [HotelController::class,'create']);
-    Route::post('/hotel/update/{id}', [HotelController::class,'update']);
+    Route::post('/hotel/update', [HotelController::class,'update']);
     Route::delete('/hotel/delete/{id}', [HotelController::class,'delete']);
     Route::get('/hotel/detail/{id}', [HotelController::class,'findHotelType']);
     Route::get('/hotel/profile', [HotelController::class,'getHotelByOwner']);
     Route::put('/hotel/upload-picture/{id}', [HotelController::class,'uploadPicture']);
+    Route::get('/hotel/facility', [HotelController::class,'getHotelFacilities']);
+    Route::get('/hotel/price', [HotelController::class,'getHotelPrice']);
     
     Route::get('/booking/done', [BookingController::class,'showDoneBookings']);
     Route::get('/booking/ongoing', [BookingController::class,'showOngoingBookings']);
@@ -59,6 +62,7 @@ Route::middleware('jwt.verify')->group(function () {
     Route::delete('/room/delete/{id}', [RoomController::class,'delete']);
     Route::get('/room/detail/{id}', [RoomController::class,'findRoomType']);
     Route::get('/room/list/{id}', [RoomController::class,'showRooms']);
+    Route::get('/room/list', [RoomController::class,'getHotelRoom']);
 
     Route::get('/facility-category', [FacilityCategoryController::class, 'index']);
     Route::post('/facility-category', [FacilityCategoryController::class, 'create']);
@@ -69,4 +73,6 @@ Route::middleware('jwt.verify')->group(function () {
     Route::post('/room-facility/{room}/{facility}', [RoomFacilityController::class, 'create']);
     Route::put('/room-facility/update/{id}', [RoomFacilityController::class, 'update']);
     Route::delete('/room-facility/delete/{id}', [RoomFacilityController::class, 'delete']);
+
+    Route::get('/review/hotel', [ReviewController::class, 'getHotelReview']);
 });

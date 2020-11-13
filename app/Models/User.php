@@ -42,4 +42,9 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasOne('App\Models\hotel');
     }
+
+    public function reviews()
+    {
+        return $this->hasMany('App\Models\Review');
+    }
 }
