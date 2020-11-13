@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddHotelPictureColumnInHotelTable extends Migration
+class CreateFacilityCategoryTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,10 @@ class AddHotelPictureColumnInHotelTable extends Migration
      */
     public function up()
     {
-        Schema::table('hotel', function (Blueprint $table) {
-            $table->string('hotel_picture')->after('hotel_desc');
+        Schema::create('facility_category', function (Blueprint $table) {
+            $table->id();
+            $table->string('facility_name',50);
+            $table->string('facility_icon')->nullable();
         });
     }
 
@@ -25,8 +27,6 @@ class AddHotelPictureColumnInHotelTable extends Migration
      */
     public function down()
     {
-        Schema::table('hotel', function (Blueprint $table) {
-            $table->dropColumn('hotel_picture');
-        });
+        Schema::dropIfExists('facility_category');
     }
 }

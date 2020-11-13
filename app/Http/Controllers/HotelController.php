@@ -3,47 +3,184 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Models\hotel;
+use App\Models\room_facility;
+use App\Models\facility_category;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class HotelController extends Controller
 {
     public function index(){
         return hotel::all();
     }
-  
+
     public function findHotelType($id){
-        return hotel::select('hotel_name')->where('id', $id)->get();
+        return hotel::select()->where('id', $id)->get();
     }
 
-    public function form(){
-        
+    public function getHotelByOwner(){
+        $user = Auth::user();
+        $hotel = hotel::select()->where('user_id', $user->id)->get();
+        if($user->user_level == 1){
+            return json_encode($hotel);
+        } else {
+            return "akses ditolak";
+        }
     }
-    public function create(request $request){
+
+    public function getHotelFacilities(){
+        $user = Auth::user();
+        $hotel_id = $user->hotel->id;
+
+        if($user->user_level == 1){
+            $fac = DB::table('room')
+                ->join('room_facility','room.id','=','room_facility.room_id')
+                ->join('facility_category','facility_category.id','=','room_facility.facility_category_id')
+                ->where('hotel_id',$hotel_id)
+                ->distinct('facility_category.id')
+                ->select('facility_category.*')
+                ->get();
+            return json_encode($fac);
+        } else {
+            return "akses ditolak";
+        }
+    }
+
+    public function getHotelPrice(){
+        $user = Auth::user();
+        $hotel_id = $user->hotel->id;
+
+        if($user->user_level == 1){
+            $price = DB::table('hotel')
+                ->join('room','hotel.id','=','room.hotel_id')
+                ->where('hotel_id',$hotel_id)
+                ->min('room_price');
+            return json_encode($price);
+        } else {
+            return "akses ditolak";
+        }
+    }
+
+    public function create(Request $request){
         $hotel = new hotel();
-        $hotel->hotel_name = $request->input('hotel_name');
-        $hotel->hotel_location = $request->input('hotel_location');
-        $hotel->hotel_desc = $request->input('hotel_desc');
-        $hotel->save();
+        $user = Auth::user();
 
-        return "Data berhasil disimpan";
+        $checkUser = hotel::firstOrNew([
+            'user_id' => $user->id
+        ]);
+        
+        if($user->user_level == 1 && !$checkUser->exists){
+            $hotel->hotel_name = $request->hotel_name;
+            $hotel->hotel_location = $request->hotel_location;
+            $hotel->hotel_desc = $request->hotel_desc;
+            $hotel->user_id = $user->id;
+
+            if(!empty($request->file('hotel_picture'))) {
+                $validator = Validator::make($request->all(), [
+                    'hotel_picture' => 'image|mimes:jpeg,png,jpg|max:2048',
+                ]);
+
+                if($validator->fails()){
+                    return response()->json($validator->errors()->toJson(), 400);
+                }
+                $file = $request->file('hotel_picture');
+                $upload_dest = 'hotel_picture';
+                $extension = $file->extension();
+                $path = $file->storeAs(
+                    $upload_dest, $user->id.'.'.$extension
+                );
+                $hotel->hotel_picture = $path;
+
+            }
+            $hotel->save();
+
+            return $hotel;
+        }else{
+            return "Sudah ada Hotel";
+        }
     }
 
-    public function update(request $request, $id){
+    public function uploadPicture(Request $request, $id){
+        $user_id = Auth::user()->id;
         $hotel = hotel::find($id);
-        
-        $hotel->hotel_name = $request->input('hotel_name');
-        $hotel->hotel_location = $request->input('hotel_location');
-        $hotel->hotel_desc = $request->input('hotel_desc');
-        $hotel->save();
+        if(!empty($request->file('room_picture'))) {
 
-        return "Data berhasil diubah";
+            $validator = Validator::make($request->all(), [
+                'hotel_picture' => 'image|mimes:jpeg,png,jpg|max:2048',
+            ]);
+
+            if($validator->fails()){
+                return response()->json($validator->errors()->toJson(), 400);
+            }
+            
+            if($user_id == $hotel->user_id){
+                unlink('storage/'.$hotel->hotel_picture);
+                $file = $request->file('hotel_picture');
+                $upload_dest = 'hotel_picture';
+                $extension = $file->extension();
+                $path = $file->store($upload_dest);
+                $hotel->hotel_picture = $path;
+
+            }
+            $hotel->save();
+        }
+
+        return $hotel;
+        
+    }
+
+    public function update(request $request){
+        $user = Auth::user();
+        $hotel = $user->hotel;
+
+        $validator = Validator::make($request->all(), [
+            'user_picture' => 'image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        if($validator->fails()){
+            return response()->json($validator->errors()->toJson(), 400);
+        }
+
+        if($user->user_level == 1 && $user->id == $hotel->user_id){
+            $hotel->hotel_name = $request->hotel_name;
+            $hotel->hotel_location = $request->hotel_location;
+            $hotel->hotel_desc = $request->hotel_desc;
+            $hotel->user_id = $user->id;
+
+            if(!empty($request->file('hotel_picture'))) {
+                unlink('storage/'.$hotel->hotel_picture);
+                $file = $request->file('hotel_picture');
+                $upload_dest = 'hotel_picture';
+                $extension = $file->extension();
+                $path = $file->storeAs(
+                    $upload_dest, $hotel->user_id.'.'.$extension
+                );
+                $hotel->hotel_picture = $path;
+
+            }
+
+            $hotel->save();
+
+            return $hotel;
+        }else{
+            return "Akses Ditolak";
+        }
     }
 
     public function delete($id){
         $hotel = hotel::find($id);
-        $hotel->delete();
+        $user = Auth::user();
 
-        return "Data berhasil dihapus";
+        if($user->user_level == 1 && $user->id == $hotel->user_id){
+            unlink('storage/'.$hotel->hotel_picture);
+            $hotel->delete();
+
+            return "Data berhasil dihapus";
+        }else{
+            return "Akses Ditolak";
+        }
     }
 }

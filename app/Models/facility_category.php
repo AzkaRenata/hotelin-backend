@@ -5,17 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class room extends Model
+class facility_category extends Model
 {
     use HasFactory;
 
-    protected $table = 'room';
+    protected $table = 'facility_category';
     public $timestamps = false;
-
-    public function hotel()
-    {
-        return $this->belongsTo('App\Models\hotel');
-    }
 
     public function room_facilities()
     {

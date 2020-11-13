@@ -11,4 +11,23 @@ class hotel extends Model
 
     protected $table = 'hotel';
     public $timestamps = false;
+    
+    protected $fillable = [
+        'hotel_name', 'hotel_location', 'hotel_desc', 'hotel_picture', 'user_id'
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo('App\Models\User');
+    }
+
+    public function rooms()
+    {
+        return $this->hasMany('App\Models\room');
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany('App\Models\Review');
+    }
 }

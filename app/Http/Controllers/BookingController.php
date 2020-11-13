@@ -71,7 +71,6 @@ class BookingController extends Controller
     }
   
     public function showOngoingBookings(){
-        // return booking::where('booking_status', '=', 1)->paginate(15);
         return $data = DB::table('booking')
         ->join('users', 'users.id', 'booking.user_id')
         ->join('room', 'room.id', 'booking.room_id')

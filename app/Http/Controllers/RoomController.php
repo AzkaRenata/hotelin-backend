@@ -3,9 +3,13 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Models\room;
 use App\Models\hotel;
+use App\Models\booking;
+use App\Models\room_facility;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Storage;
 
 class RoomController extends Controller
 {
@@ -13,6 +17,16 @@ class RoomController extends Controller
         return room::all();
     }
   
+    public function getHotelRoom(){
+        $user = Auth::user();
+        if($user->user_level == 1){
+            $rooms = $user->hotel->rooms;
+            return json_encode($rooms);
+        } else {
+            return "akses ditolak";
+        }
+    }
+
     public function showRooms($hotel_id){
         return booking::where('hotel_id', '=', $hotel_id);
     }
@@ -24,39 +38,126 @@ class RoomController extends Controller
     }
   
     public function findRoomType($id){
-        return room::select('room_type')->where('id', $id)->get();
+        $room = room::select('*')->where('id', $id)->first(); 
+        $facility = room_facility::select('*')->where('room_id', $room->id)->get();
+        
+        echo $room;
+        echo $room->id;
+        echo $facility;
     }
 
     public function create(request $request){
         $room = new room;
-        $room->hotel_id = $request->hotel_id;
-        $room->room_type = $request->room_type;
-        $room->room_price = $request->room_price;
-        $room->guest_capacity = $request->guest_capacity;
-        $room->save();
+        $user = Auth::user();
+        
+        $checkHotel = hotel::firstOrNew([
+            'user_id' => $user->id
+        ]);
 
-        return "Data berhasil disimpan";
+        if($user->user_level == 1 && $checkHotel->exists){
+            $hotel = hotel::where('user_id', '=', $user->id)->first();
+
+            $room->hotel_id = $hotel->id;
+            $room->room_type = $request->room_type;
+            $room->bed_type = $request->bed_type;
+            $room->room_price = $request->room_price;
+            $room->guest_capacity = $request->guest_capacity;
+            if(!empty($request->file('room_picture'))) {
+
+                $validator = Validator::make($request->all(), [
+                    'room_picture' => 'image|mimes:jpeg,png,jpg|max:2048',
+                ]);
+
+                if($validator->fails()){
+                    return response()->json($validator->errors()->toJson(), 400);
+                }
+
+                $file = $request->file('room_picture');
+                $upload_dest = 'room_picture';
+                $extension = $file->extension();
+                $path = $file->store($upload_dest);
+                $room->room_picture = $path;
+
+            }
+            $room->save();
+
+            return $room;
+        }else{
+            return "Akses Ditolak";
+        }
     }
 
-    public function uploadPicture(){
-
-    }
-
-    public function update(request $request, $id){
+    public function uploadPicture(Request $request, $id){
+        $user = Auth::user();
         $room = room::find($id);
-        $room->hotel_id = $request->hotel_id;
-        $room->room_type = $request->room_type;
-        $room->room_price = $request->room_price;
-        $room->guest_capacity = $request->guest_capacity;
-        $room->save();
+        if(!empty($request->file('room_picture'))) {
 
-        return "Data berhasil diubah";
+            $validator = Validator::make($request->all(), [
+                'room_picture' => 'image|mimes:jpeg,png,jpg|max:2048',
+            ]);
+
+            if($validator->fails()){
+                return response()->json($validator->errors()->toJson(), 400);
+            }
+            unlink('storage/'.$room->room_picture);
+            if($user->id == $room->hotel->user_id && $user->user_level == 1){
+                $file = $request->file('room_picture');
+                $upload_dest = 'room_picture';
+                $extension = $file->extension();
+                $path = $file->store($upload_dest);
+                $room->room_picture = $path;
+
+            }
+            $room->save();
+        }
+        
+    }
+
+    public function update(Request $request, $id){
+        $room = room::find($id);
+        $user = Auth::user();
+
+        if($user->user_level == 1 && $user->id == $room->hotel->user_id){
+            $room->hotel_id = $request->hotel_id;
+            $room->room_type = $request->room_type;
+            $room->room_price = $request->room_price;
+            $room->guest_capacity = $request->guest_capacity;
+
+            if(!empty($request->file('room_picture'))) {
+                $validator = Validator::make($request->all(), [
+                    'room_picture' => 'image|mimes:jpeg,png,jpg|max:2048',
+                ]);
+
+                if($validator->fails()){
+                    return response()->json($validator->errors()->toJson(), 400);
+                }
+                unlink('storage/'.$room->room_picture);
+                $file = $request->file('room_picture');
+                $upload_dest = 'room_picture';
+                $extension = $file->extension();
+                $path = $file->store($upload_dest);
+                $room->room_picture = $path;
+
+            }
+            $room->save();
+
+            return $room;
+        }else{
+            return "Akses Ditolak";
+        }
     }
 
     public function delete($id){
-        $hotel = room::find($id);
-        $hotel->delete();
+        $room = room::find($id);
+        $user = Auth::user();
 
-        return "Data berhasil dihapus";
+        if($user->id == $room->hotel->user_id && $user->user_level == 1){
+            unlink('storage/'.$room->room_picture);
+            $room->delete();
+
+            return "Data berhasil dihapus";
+        }else{
+            return "Akses Ditolak";
+        }
     }
 }
