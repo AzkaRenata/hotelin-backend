@@ -71,15 +71,32 @@ class BookingController extends Controller
     }
   
     public function showOngoingBookings(){
-        return booking::where('booking_status', '=', 1)->paginate(15);
+        return $data = DB::table('booking')
+        ->join('users', 'users.id', 'booking.user_id')
+        ->join('room', 'room.id', 'booking.room_id')
+        ->select('users.name', 'booking.check_in', 'room.room_type', 'room_price')
+        ->where('booking.booking_status', 1)  
+        ->get();  
     }
 
     public function showDoneBookings(){
         // $allBookings = booking::paginate(5);
-        return booking::where('booking_status', '=', 2)->paginate(15);
+        // return booking::where('booking_status', '=', 2)->paginate(15);
+        return $data = DB::table('booking')
+        ->join('users', 'users.id', 'booking.user_id')
+        ->join('room', 'room.id', 'booking.room_id')
+        ->select('users.name', 'booking.check_in', 'room.room_type', 'room_price')
+        ->where('booking.booking_status', 2)
+        ->get();
     }
 
     public function showCanceledBookings(){
-        return booking::where('booking_status', '=', 3)->paginate(15);
+        // return booking::where('booking_status', '=', 3)->paginate(15);
+        return $data = DB::table('booking')
+        ->join('users', 'users.id', 'booking.user_id')
+        ->join('room', 'room.id', 'booking.room_id')
+        ->select('users.name', 'booking.check_in', 'room.room_type', 'room_price')
+        ->where('booking.booking_status', 3)
+        ->get();
     }
 }
