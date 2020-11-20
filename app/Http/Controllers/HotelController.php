@@ -31,6 +31,41 @@ class HotelController extends Controller
         }
     }
 
+    public function getHotelProfile(){
+        $user = Auth::user();
+        $hotel_id = $user->hotel->id;
+
+        if($user->user_level == 1){
+            $hotel = DB::table('hotel')
+            ->leftJoin('room','hotel.id','=','room.hotel_id')
+            ->leftJoin('review','hotel.id','=','review.hotel_id')
+            ->where('hotel.id',$hotel_id)
+            ->select(DB::raw(
+                'hotel.id,
+                hotel.hotel_name,
+                hotel.hotel_location,
+                hotel.hotel_desc,
+                hotel.hotel_picture,
+                hotel.user_id, 
+                avg(review.hotel_rating) as hotel_rating, 
+                min(room.room_price) as hotel_price'
+                )
+            )
+            ->groupBy([
+                'hotel.id',
+                'hotel.hotel_name',
+                'hotel.hotel_location',
+                'hotel.hotel_desc',
+                'hotel.hotel_picture',
+                'hotel.user_id'
+            ])
+            ->get();
+            return json_encode($hotel);
+        } else {
+            return "akses ditolak";
+        }
+    }
+
     public function getHotelFacilities(){
         $user = Auth::user();
         $hotel_id = $user->hotel->id;
@@ -132,7 +167,7 @@ class HotelController extends Controller
         
     }
 
-    public function update(request $request){
+    public function update(Request $request){
         $user = Auth::user();
         $hotel = $user->hotel;
 

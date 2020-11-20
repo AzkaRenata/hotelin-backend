@@ -14,20 +14,33 @@ use Illuminate\Support\Facades\Storage;
 class RoomController extends Controller
 {
     public function index(){
-        return room::all();
+        //return room::all();
+        $user = Auth::user();
+        if($user->user_level == 1){
+            return $user->hotel->rooms;
+        } else {
+            return "akses ditolak";
+        }
     }
-  
+    
+    public function getRoomById($id){
+        $user = Auth::user();
+        if($user->user_level == 1){
+            return room::select('*')->where('id', $id)->first();
+        }
+        return "Akses Ditolak";
+    }
+
     public function getHotelRoom(){
         $user = Auth::user();
         if($user->user_level == 1){
-            $rooms = $user->hotel->rooms;
-            return json_encode($rooms);
+            return $user->hotel->rooms;
         } else {
             return "akses ditolak";
         }
     }
 
-    public function showRooms($hotel_id){
+    public function showRoomByHotel($hotel_id){
         return booking::where('hotel_id', '=', $hotel_id);
     }
 
@@ -155,7 +168,7 @@ class RoomController extends Controller
             unlink('storage/'.$room->room_picture);
             $room->delete();
 
-            return "Data berhasil dihapus";
+             return response()->json(['success' => true], 200);
         }else{
             return "Akses Ditolak";
         }
