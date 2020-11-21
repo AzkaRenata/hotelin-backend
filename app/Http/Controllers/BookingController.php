@@ -80,17 +80,18 @@ class BookingController extends Controller
         $user = Auth::user();
         if($user->user_level == 1){
             $hotel_id = $user->hotel->id;
-            $room_id = room::select('id')->where('hotel_id',$hotel_id)->get();
-            // $booking = booking::find($id);
-            // foreach ($room_id as $id) {
-            //     if($booking->room_id == $id){
-            //         $booking->delete();
-            //         return response()->json([
-            //             'success' => true,
-            //             'message' => "Berhasil delete"
-            //         ]);
-            //     }
-            // }
+            $room = room::select('id')->where('hotel_id',$hotel_id)->get();
+            $booking = booking::find($id);
+
+            foreach ($room as $room_id) {
+                if($booking->room_id == $room_id->id){
+                    $booking->delete();
+                    return response()->json([
+                        'success' => true,
+                        'message' => "Berhasil delete"
+                    ]);
+                }
+            }
            
             return response()->json([
                         'success' => false,
@@ -163,11 +164,14 @@ class BookingController extends Controller
     }
 
     public function showBookingById($id){
-        $booking = DB::table('users')
-                ->join('booking','users.id','=','booking.user_id')
+        $booking = DB::table('booking')
+                ->join('users','users.id','=','booking.user_id')
                 ->join('room','room.id','=','booking.room_id')
                 ->join('hotel','hotel.id','=','room.hotel_id')
                 ->where('booking.id',$id)
+                ->select('booking.*','users.name',
+                    'hotel.hotel_name','room.room_type',
+                    'room.bed_type','room.room_price')
                 ->get();
         return $booking;
     }
