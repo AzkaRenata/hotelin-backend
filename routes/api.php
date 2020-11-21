@@ -40,32 +40,35 @@ Route::middleware('jwt.verify')->group(function () {
     Route::get('/user/logout', [UserController::class, 'logout']);
 
     Route::get('/hotel', [HotelController::class,'index']);
-    Route::post('/hotel', [HotelController::class,'create']);
+    Route::post('/hotel/create', [HotelController::class,'create']);
     Route::post('/hotel/update', [HotelController::class,'update']);
     Route::delete('/hotel/delete/{id}', [HotelController::class,'delete']);
     Route::get('/hotel/detail/{id}', [HotelController::class,'findHotelType']);
-    Route::get('/hotel/profile', [HotelController::class,'getHotelByOwner']);
+    Route::get('/hotel/profile', [HotelController::class,'getHotelProfile']);
     Route::put('/hotel/upload-picture/{id}', [HotelController::class,'uploadPicture']);
     Route::get('/hotel/facility', [HotelController::class,'getHotelFacilities']);
     Route::get('/hotel/price', [HotelController::class,'getHotelPrice']);
     
-    Route::get('/booking/done', [BookingController::class,'showDoneBookings']);
-    Route::get('/booking/ongoing', [BookingController::class,'showOngoingBookings']);
-    Route::get('/booking/canceled', [BookingController::class,'showCanceledBookings']);
-    Route::post('/booking', [BookingController::class,'create']);
+    Route::post('/booking/create', [BookingController::class,'create']);
+    Route::post('/booking/update/{id}', [BookingController::class,'update']);
+    Route::post('/booking/change-status/{id}/{status}', [BookingController::class,'updateBookingStatus']);
+    Route::delete('/booking/delete/{id}', [BookingController::class,'delete']);
+    Route::get('/booking/list/{status_id}', [BookingController::class,'showBookings']);
+    Route::get('/booking/show/{id}', [BookingController::class,'showBookingById']);
     Route::get('/booking/detail/{id}', [BookingController::class,'findBookingType']);
 
     Route::get('/room', [RoomController::class,'index']);
-    Route::post('/room', [RoomController::class,'create']);
-    Route::put('/room/update/{id}', [RoomController::class,'update']);
+    Route::get('/room/list/{id}', [RoomController::class, 'getRoomById']);
+    Route::post('/room/create', [RoomController::class,'create']);
+    Route::post('/room/update/{id}', [RoomController::class,'update']);
     Route::put('/room/upload-picture/{id}', [RoomController::class,'uploadPicture']);
     Route::delete('/room/delete/{id}', [RoomController::class,'delete']);
     Route::get('/room/detail/{id}', [RoomController::class,'findRoomType']);
-    Route::get('/room/list/{id}', [RoomController::class,'showRooms']);
+    Route::get('/room/hotel/{id}', [RoomController::class,'showRoomByHotel']);
     Route::get('/room/list', [RoomController::class,'getHotelRoom']);
 
     Route::get('/facility-category', [FacilityCategoryController::class, 'index']);
-    Route::post('/facility-category', [FacilityCategoryController::class, 'create']);
+    Route::post('/facility-category/create', [FacilityCategoryController::class, 'create']);
     Route::put('/facility-category/update/{id}', [FacilityCategoryController::class, 'update']);
     Route::delete('/facility-category/delete/{id}', [FacilityCategoryController::class, 'delete']);
 

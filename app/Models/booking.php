@@ -11,4 +11,14 @@ class booking extends Model
 
     protected $table = 'booking';
     public $timestamps = false;
+
+    public function user()
+    {
+        return $this->belongsTo('App\Models\User');
+    }
+
+    public function room()
+    {
+        return $this->belongsTo('App\Models\room');
+    }
 }
