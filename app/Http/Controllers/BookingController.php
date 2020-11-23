@@ -80,10 +80,11 @@ class BookingController extends Controller
         $user = Auth::user();
         if($user->user_level == 1){
             $hotel_id = $user->hotel->id;
-            $room_id = room::select('id')->where('hotel_id',$hotel_id);
+            $room = room::select('id')->where('hotel_id',$hotel_id)->get();
             $booking = booking::find($id);
-            foreach ($room_id as $id) {
-                if($booking->room_id == $id){
+
+            foreach ($room as $room_id) {
+                if($booking->room_id == $room_id->id){
                     $booking->delete();
                     return response()->json([
                         'success' => true,
@@ -91,6 +92,7 @@ class BookingController extends Controller
                     ]);
                 }
             }
+           
             return response()->json([
                         'success' => false,
                         'message' => "Gagal delete"
@@ -118,28 +120,59 @@ class BookingController extends Controller
         return booking::select('user_id','room_id')->where('id', $id)->get();
     }
   
-    public function showBookings($status_id){
+    public function showBookings($status_id=null){
         $user = Auth::user();
-        return booking::where('booking_status',$status_id);
-        if($user->user_level == 1){
-            $hotel_id = $user->hotel->id;
-            $booking = booking::with(['user','room'])->paginate(15);
-            return $booking
-            ->where('booking_status', '=', $status_id)
-            ->where('room.hotel_id', '=', $hotel_id);
+        //return booking::where('booking_status',$status_id);
+        if($status_id == null || ($status_id >=1 && $status_id <=3)){
+             if($user->user_level == 1){
+                $hotel_id = $user->hotel->id;
+                $booking = DB::table('hotel')
+                ->join('room','hotel.id','=','room.hotel_id')
+                ->join('booking','room.id','=','booking.room_id')
+                ->join('users','users.id','=','booking.user_id')
+                ->where('hotel.id',$hotel_id)
+                ->select('booking.*','hotel.hotel_name',
+                    'room.room_type','room.bed_type',
+                    'room.room_price','users.name');
+                if($status_id == null){
+                    return $booking->get();
+                } else {
+                   return $booking->where('booking.booking_status',$status_id)->get();
+                }
 
-        } else if ($user->user_level == 2){
-            $booking = booking::with(['user','room'])->paginate(15);
-            return $booking
-            ->where('booking_status', '=', $status_id)
-            ->where('user_id', '=', $user->id);
+            } else if ($user->user_level == 2){
+                $booking = DB::table('users')
+                ->join('booking','users.id','=','booking.user_id')
+                ->join('room','room.id','=','booking.room_id')
+                ->join('hotel','hotel.id','=','room.hotel_id')
+                ->where('users.id',$user->id);
+                if($status_id == null){
+                    return $booking->get();
+                } else {
+                   return $booking->where('booking.booking_status',$status_id)->get();
+                }
+            }
+        } else {
+             return response()->json([
+                'success' => false,
+                'message' => "Status ID tidak ditemuka"
+                ]);
         }
+           
         
         //return booking::where('booking_status', '=', 1)->paginate(15);
     }
 
     public function showBookingById($id){
-        $booking = booking::where('id', '=', $id)->get();
+        $booking = DB::table('booking')
+                ->join('users','users.id','=','booking.user_id')
+                ->join('room','room.id','=','booking.room_id')
+                ->join('hotel','hotel.id','=','room.hotel_id')
+                ->where('booking.id',$id)
+                ->select('booking.*','users.name',
+                    'hotel.hotel_name','room.room_type',
+                    'room.bed_type','room.room_price')
+                ->get();
         return $booking;
     }
 

@@ -53,7 +53,7 @@ Route::middleware('jwt.verify')->group(function () {
     Route::post('/booking/update/{id}', [BookingController::class,'update']);
     Route::post('/booking/change-status/{id}/{status}', [BookingController::class,'updateBookingStatus']);
     Route::delete('/booking/delete/{id}', [BookingController::class,'delete']);
-    Route::get('/booking/list/{status_id}', [BookingController::class,'showBookings']);
+    Route::get('/booking/list/{status_id?}', [BookingController::class,'showBookings']);
     Route::get('/booking/show/{id}', [BookingController::class,'showBookingById']);
     Route::get('/booking/detail/{id}', [BookingController::class,'findBookingType']);
 
