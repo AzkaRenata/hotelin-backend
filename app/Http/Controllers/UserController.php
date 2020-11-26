@@ -66,7 +66,6 @@ class UserController extends Controller
 
     public function registerCustomer(Request $request)
     {
-        /*
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users',
@@ -79,12 +78,11 @@ class UserController extends Controller
         if($validator->fails()){
             return response()->json($validator->errors()->toJson(), 400);
         }
-        */
 
         $user = new User;
-        $user->username = $request->secondname;
-        $user->name = $request->firstname;
-        $user->email = $request->emails;
+        $user->username = $request->username;
+        $user->name = $request->name;
+        $user->email = $request->email;
         $user->password = Hash::make($request->password);
         $user->user_level = 2;
         $user->gender = $request->gender;
@@ -109,7 +107,6 @@ class UserController extends Controller
 
     public function register(Request $request)
     {
-        /*
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users',
@@ -126,7 +123,6 @@ class UserController extends Controller
         if($validator->fails()){
             return response()->json($validator->errors()->toJson(), 400);
         }
-        */
 
         $user = new User;
         $user->username = $request->username;
