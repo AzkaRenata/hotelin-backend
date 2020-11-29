@@ -10,6 +10,7 @@ use App\Models\room_facility;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class RoomController extends Controller
 {
@@ -41,7 +42,20 @@ class RoomController extends Controller
     }
 
     public function showRoomByHotel($hotel_id){
-        return booking::where('hotel_id', '=', $hotel_id);
+        //return booking::where('hotel_id', '=', $hotel_id);
+        $hotel = DB::table('room')
+            ->leftJoin('hotel','hotel.id','=','room.hotel_id')
+            ->leftJoin('room_facility','room.id','=','room_facility.room_id')
+            ->leftJoin('facility_category','facility_category.id','=','room_facility.facility_category_id')
+            ->where('hotel.id',$hotel_id)
+            ->select('room.*','hotel.hotel_name',
+                'room_facility.facility_category_id',
+                'facility_category.facility_name',
+                'facility_category.facility_icon')
+            ->orderBy('room.id','asc')
+            ->orderBy('room_facility.facility_category_id','asc')
+            ->get();
+        return $hotel;
     }
 
     public function form(){

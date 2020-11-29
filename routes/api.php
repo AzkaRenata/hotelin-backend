@@ -40,6 +40,7 @@ Route::middleware('jwt.verify')->group(function () {
     Route::get('/user/logout', [UserController::class, 'logout']);
 
     Route::get('/hotel', [HotelController::class,'index']);
+    Route::get('/hotel/search/{param}', [HotelController::class,'getHotelByParam']);
     Route::post('/hotel/create', [HotelController::class,'create']);
     Route::post('/hotel/update', [HotelController::class,'update']);
     Route::delete('/hotel/delete/{id}', [HotelController::class,'delete']);
