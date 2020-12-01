@@ -145,7 +145,11 @@ class BookingController extends Controller
                 ->join('booking','users.id','=','booking.user_id')
                 ->join('room','room.id','=','booking.room_id')
                 ->join('hotel','hotel.id','=','room.hotel_id')
-                ->where('users.id',$user->id);
+                ->where('users.id',$user->id)
+                ->select('booking.*',
+                    'hotel.hotel_name','hotel.hotel_picture','hotel.hotel_location',
+                    'room.room_type','room.bed_type','room.room_price',
+                    'users.name','users.email','users.telp');
                 if($status_id == null){
                     return $booking->get();
                 } else {
@@ -164,16 +168,18 @@ class BookingController extends Controller
     }
 
     public function showBookingById($id){
-        $booking = DB::table('booking')
+        $bookinghistory = DB::table('booking')
                 ->join('users','users.id','=','booking.user_id')
                 ->join('room','room.id','=','booking.room_id')
                 ->join('hotel','hotel.id','=','room.hotel_id')
                 ->where('booking.id',$id)
-                ->select('booking.*','users.name',
-                    'hotel.hotel_name','room.room_type',
-                    'room.bed_type','room.room_price')
-                ->get();
-        return $booking;
+                ->select('booking.*','users.name','users.email','users.telp',
+                    'hotel.hotel_name','hotel.hotel_picture','hotel.hotel_location',
+                    'room.room_type','room.bed_type','room.room_price',
+                    'room.guest_capacity')
+                ->first();
+        
+        return response()->json(compact('bookinghistory'),200);
     }
 
 }
