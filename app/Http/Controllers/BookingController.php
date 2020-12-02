@@ -170,7 +170,7 @@ class BookingController extends Controller
         } else {
              return response()->json([
                 'success' => false,
-                'message' => "Status ID tidak ditemuka"
+                'message' => "Status ID tidak ditemukan"
                 ]);
         }
            
