@@ -10,25 +10,52 @@ use App\Models\room_facility;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
 
 class RoomController extends Controller
 {
     public function index(){
-        return room::all();
+        //return room::all();
+        $user = Auth::user();
+        if($user->user_level == 1){
+            return $user->hotel->rooms;
+        } else {
+            return "akses ditolak";
+        }
     }
-  
+    
+    public function getRoomById($id){
+        $user = Auth::user();
+        if($user->user_level == 1){
+            return room::select('*')->where('id', $id)->first();
+        }
+        return "Akses Ditolak";
+    }
+
     public function getHotelRoom(){
         $user = Auth::user();
         if($user->user_level == 1){
-            $rooms = $user->hotel->rooms;
-            return json_encode($rooms);
+            return $user->hotel->rooms;
         } else {
             return "akses ditolak";
         }
     }
 
-    public function showRooms($hotel_id){
-        return booking::where('hotel_id', '=', $hotel_id);
+    public function showRoomByHotel($hotel_id){
+        //return booking::where('hotel_id', '=', $hotel_id);
+        $hotel = DB::table('room')
+            ->leftJoin('hotel','hotel.id','=','room.hotel_id')
+            ->leftJoin('room_facility','room.id','=','room_facility.room_id')
+            ->leftJoin('facility_category','facility_category.id','=','room_facility.facility_category_id')
+            ->where('hotel.id',$hotel_id)
+            ->select('room.*','hotel.hotel_name',
+                'room_facility.facility_category_id',
+                'facility_category.facility_name',
+                'facility_category.facility_icon')
+            ->orderBy('room.id','asc')
+            ->orderBy('room_facility.facility_category_id','asc')
+            ->get();
+        return $hotel;
     }
 
     public function form(){
@@ -155,7 +182,7 @@ class RoomController extends Controller
             unlink('storage/'.$room->room_picture);
             $room->delete();
 
-            return "Data berhasil dihapus";
+             return response()->json(['success' => true], 200);
         }else{
             return "Akses Ditolak";
         }

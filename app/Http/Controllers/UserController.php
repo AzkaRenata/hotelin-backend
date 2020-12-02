@@ -64,15 +64,14 @@ class UserController extends Controller
     }
 
 
-    public function register(Request $request)
+    public function registerCustomer(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6|confirmed',
-            'user_level' => 'required|integer|max:2|min:1',
+            //'user_level' => 'required|integer|max:2|min:1',
             'user_picture' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
@@ -85,10 +84,49 @@ class UserController extends Controller
         $user->name = $request->name;
         $user->email = $request->email;
         $user->password = Hash::make($request->password);
-        $user->user_level = $request->user_level;
+        $user->user_level = 2;
         $user->gender = $request->gender;
         $user->telp = $request->telp;
         $user->address = $request->address;
+
+        if(!empty($request->file('user_picture'))) {
+            $file = $request->file('user_picture');
+            $upload_dest = 'user_picture';
+            $extension = $file->extension();
+            $path = $file->storeAs(
+                $upload_dest, $request->username.'.'.$extension
+            );
+            $user->user_picture = $path;
+
+        } 
+        
+        $user->save();
+        $token = JWTAuth::fromUser($user);
+        return response()->json(compact('user','token'),200);
+    }
+
+    public function register(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:6|confirmed',
+            //'user_level' => 'required|integer|max:2|min:1',
+            'user_picture' => 'image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+        
+
+        if($validator->fails()){
+            return response()->json($validator->errors()->toJson(), 400);
+        }
+
+        $user = new User;
+        $user->username = $request->username;
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->password = Hash::make($request->password);
+        $user->user_level = 1;
 
         if(!empty($request->file('user_picture'))) {
             $file = $request->file('user_picture');
