@@ -16,6 +16,7 @@ class BookingController extends Controller
     public function create(request $request){
         $booking = new booking();
         $user = Auth::user();
+        $status = "Berhasil";
 
         $booking->user_id = $user->id;
         $booking->room_id = $request->room_id;
@@ -25,7 +26,17 @@ class BookingController extends Controller
         $booking->booking_time = now();
         $booking->save();
 
-        return $booking::all();
+        // return $booking::all();
+        // return booking::find($request->room_id);
+        // return DB::table('booking')->where('user_id','=', $user->id)->
+        //                 where('booking_status','=', 1)->
+        //                 orderBy('booking_time', 'desc')->limit(1)->get();
+        // return $status;
+
+        return response()->json([
+            'success' => true,
+            'message' => $status
+        ]);
     }
 
     public function updateBookingStatus($id, $status){
@@ -159,7 +170,7 @@ class BookingController extends Controller
         } else {
              return response()->json([
                 'success' => false,
-                'message' => "Status ID tidak ditemuka"
+                'message' => "Status ID tidak ditemukan"
                 ]);
         }
            
