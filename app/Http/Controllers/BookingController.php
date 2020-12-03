@@ -148,7 +148,8 @@ class BookingController extends Controller
                 if($status_id == null){
                     return $booking->get();
                 } else {
-                   return $booking->where('booking.booking_status',$status_id)->get();
+                    return response()->json(["booking" => $booking->where('booking.booking_status',$status_id)->get()]);
+                   //return $booking->where('booking.booking_status',$status_id)->get();
                 }
 
             } else if ($user->user_level == 2){
