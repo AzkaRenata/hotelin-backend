@@ -14,29 +14,29 @@ class BookingController extends Controller
     }
 
     public function create(request $request){
-        $booking = new booking();
         $user = Auth::user();
-        $status = "Berhasil";
 
-        $booking->user_id = $user->id;
-        $booking->room_id = $request->room_id;
-        $booking->booking_status = 1;
-        $booking->check_in = $request->check_in;
-        $booking->check_out = $request->check_out;
-        $booking->booking_time = now();
-        $booking->save();
+        if($user->user_level == 2){
+            $booking = new booking();
+            $booking->user_id = $user->id;
+            $booking->room_id = $request->room_id;
+            $booking->booking_status = 1;
+            $booking->check_in = $request->check_in;
+            $booking->check_out = $request->check_out;
+            $booking->booking_time = now();
+            $booking->save();
 
-        // return $booking::all();
-        // return booking::find($request->room_id);
-        // return DB::table('booking')->where('user_id','=', $user->id)->
-        //                 where('booking_status','=', 1)->
-        //                 orderBy('booking_time', 'desc')->limit(1)->get();
-        // return $status;
+            return response()->json([
+                'success' => true,
+                'message' => "Berhasil"
+            ]);
+        }
 
         return response()->json([
-            'success' => true,
-            'message' => $status
-        ]);
+                'success' => false,
+                'message' => "Gagal"
+            ]);
+        
     }
 
     public function updateBookingStatus($id, $status){
