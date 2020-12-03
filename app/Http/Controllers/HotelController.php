@@ -60,6 +60,7 @@ class HotelController extends Controller
         }
     }
 
+
     public function getHotelProfile(){
         $user = Auth::user();
         $hotel_id = $user->hotel->id;
@@ -89,11 +90,26 @@ class HotelController extends Controller
                 'hotel.user_id'
             ])
             ->get();
-            return json_encode($hotel);
+
+            $facilitiy = DB::table('room')
+                ->join('room_facility','room.id','=','room_facility.room_id')
+                ->join('facility_category','facility_category.id','=','room_facility.facility_category_id')
+                ->where('hotel_id',$hotel_id)
+                ->distinct('facility_category.id')
+                ->select('facility_category.*')
+                ->get();
+
+            //return json_encode($hotel);
+            return response()->json([
+                'hotel' => $hotel,
+                'facility' => $facilitiy,
+                'room' => $user->hotel->rooms
+                ]);
         } else {
             return "akses ditolak";
         }
     }
+
 
     public function getHotelFacilities(){
         $user = Auth::user();
