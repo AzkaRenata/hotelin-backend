@@ -193,6 +193,18 @@ class UserController extends Controller
 
     public function update(Request $request){
         $user = Auth::user();
+
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'username' => 'required|string|max:255|unique:users,id,$id',
+            'email' => 'required|string|email|max:255|unique:users,id,$id',
+            //'user_level' => 'required|integer|min:1|max:2',
+            'user_picture' => 'image|mimes:jpeg,jpg,png|max:2048',
+        ]);
+
+        if($validator->fails()){
+            return response()->json($validator->errors()->toJson(), 400);
+        }
         
         if($request->username != null){
             $user->username = $request->username;
