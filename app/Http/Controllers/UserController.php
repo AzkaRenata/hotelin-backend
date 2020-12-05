@@ -144,6 +144,7 @@ class UserController extends Controller
         return response()->json(compact('user','token'),200);
     }
 
+    /*
     public function update(Request $request){
         $user = Auth::user();
         $id = $user->id;
@@ -152,31 +153,70 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users,id,$id',
             'email' => 'required|string|email|max:255|unique:users,id,$id',
-            'user_level' => 'required|integer|min:1|max:2',
+            //'user_level' => 'required|integer|min:1|max:2',
             'user_picture' => 'image|mimes:jpeg,jpg,png|max:2048',
         ]);
 
         if($validator->fails()){
             return response()->json($validator->errors()->toJson(), 400);
         }
+        if($request->username != null){
+            $user->username = $request->username;
+        }
+            
+        
+        if($request->name  != null){
+            $user->name = $request->name;
+        }
 
-        $user->username = $request->username;
-        $user->name = $request->name;
-        $user->email = $request->email;
-        $user->user_level = $request->user_level;
-        $user->gender = $request->gender;
-        $user->telp = $request->telp;
-        $user->address = $request->address;
+        if($request->email != null){
+            $user->email = $request->email;
+        }
+        
+        if($request->gender != null){
+            $user->gender = $request->gender;    
+        }
 
-        if(!empty($request->file('user_picture'))){
-            unlink('storage/'.$user->user_picture);
-            $file = $request->file('user_picture');
-            $upload_dest = 'user_picture';
-            $extension = $file->extension();
-            $path = $file->storeAs(
-                $upload_dest, $user->username.'.'.$extension
-            );
-            $user->user_picture = $path;
+        if($request->telp != null){
+            $user->telp = $request->telp;
+        }
+
+        if($request->address != null){
+            $user->address = $request->address;
+        }
+        
+        $user->save();
+
+        return response()->json(compact('user'), 200);
+    }
+    */
+
+    public function update(Request $request){
+        $user = Auth::user();
+        
+        if($request->username != null){
+            $user->username = $request->username;
+        }
+            
+        
+        if($request->name  != null){
+            $user->name = $request->name;
+        }
+
+        if($request->email != null){
+            $user->email = $request->email;
+        }
+        
+        if($request->gender != null){
+            $user->gender = $request->gender;    
+        }
+
+        if($request->telp != null){
+            $user->telp = $request->telp;
+        }
+
+        if($request->address != null){
+            $user->address = $request->address;
         }
 
         $user->save();

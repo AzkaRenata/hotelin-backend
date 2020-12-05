@@ -126,7 +126,12 @@ class RoomController extends Controller
             if($validator->fails()){
                 return response()->json($validator->errors()->toJson(), 400);
             }
-            unlink('storage/'.$room->room_picture);
+
+            if($room->room_picture != null){
+                unlink('storage/'.$room->room_picture);
+            }
+
+            
             if($user->id == $room->hotel->user_id && $user->user_level == 1){
                 $file = $request->file('room_picture');
                 $upload_dest = 'room_picture';
@@ -137,6 +142,7 @@ class RoomController extends Controller
             }
             $room->save();
         }
+        return $room;
         
     }
 
