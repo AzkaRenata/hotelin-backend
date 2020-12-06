@@ -32,6 +32,27 @@ class RoomController extends Controller
         return "Akses Ditolak";
     }
 
+    public function getRoomDetail($id){
+        $user = Auth::user();
+        if($user->user_level == 1){
+            $hotel = hotel::select('hotel.*')
+                    ->leftJoin('room','hotel.id','=','room.hotel_id')
+                    ->where('room.id',$id)
+                    ->first();
+            $room = room::where('id', $id)->first();
+            $facility = room_facility::select('facility_category.*')
+                        ->leftJoin('facility_category','facility_category.id','=','room_facility.facility_category_id')
+                        ->where('room_facility.room_id',$id)
+                        ->get();
+            return response()->json([
+                'hotel' => $hotel,
+                'room' => $room,
+                'facility' => $facility
+                ]);
+        }
+        return "Akses Ditolak";
+    }
+
     public function getHotelRoom(){
         $user = Auth::user();
         if($user->user_level == 1){
@@ -179,7 +200,9 @@ class RoomController extends Controller
         $user = Auth::user();
 
         if($user->id == $room->hotel->user_id && $user->user_level == 1){
-            unlink('storage/'.$room->room_picture);
+            if($room->room_picture != null){
+                unlink('storage/'.$room->room_picture);
+            }
             $room->delete();
 
              return response()->json(['success' => true], 200);

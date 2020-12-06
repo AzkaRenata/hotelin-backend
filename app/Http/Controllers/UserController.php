@@ -16,6 +16,30 @@ use Illuminate\Support\Facades\Auth;
 class UserController extends Controller
 {
 
+    public function validateToken(){
+        try {
+
+            if (! $user = JWTAuth::parseToken()->authenticate()) {
+                return response()->json(['user_not_found'], 404);
+            }
+
+        } catch (TokenExpiredException $e) {
+
+            return response()->json(['success' => false]);
+
+        } catch (TokenInvalidException $e) {
+
+            return response()->json(['success' => false]);
+
+        } catch (JWTException $e) {
+
+            return response()->json(['success' => false]);
+
+        }
+
+        return response()->json(['success' => true]);
+    }
+
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');

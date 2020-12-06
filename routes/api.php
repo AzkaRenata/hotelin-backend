@@ -32,7 +32,8 @@ Route::post('/user/register', [UserController::class, 'register']);
 Route::post('/user/registerCustomer', [UserController::class, 'registerCustomer']);
 Route::post('/user/login', [UserController::class, 'login']);
 
-Route::middleware('jwt.verify')->group(function () {     
+Route::middleware('jwt.verify')->group(function () {  
+    Route::get('test', [UserController::class, 'validateToken']);   
 	Route::get('user', [UserController::class, 'index']);
     Route::post('/user/update', [UserController::class, 'update']);
     Route::post('/user/update-picture', [UserController::class, 'updatePicture']);
@@ -65,7 +66,7 @@ Route::middleware('jwt.verify')->group(function () {
     Route::post('/room/update/{id}', [RoomController::class,'update']);
     Route::put('/room/upload-picture/{id}', [RoomController::class,'uploadPicture']);
     Route::delete('/room/delete/{id}', [RoomController::class,'delete']);
-    Route::get('/room/detail/{id}', [RoomController::class,'findRoomType']);
+    Route::get('/room/detail/{id}', [RoomController::class,'getRoomDetail']);
     Route::get('/room/hotel/{id}', [RoomController::class,'showRoomByHotel']);
     Route::get('/room/list', [RoomController::class,'getHotelRoom']);
 
