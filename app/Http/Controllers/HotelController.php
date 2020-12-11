@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\hotel;
 use App\Models\room_facility;
 use App\Models\facility_category;
+use Illuminate\Http\File;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -60,6 +61,7 @@ class HotelController extends Controller
         }
     }
 
+
     public function getHotelProfile(){
         $user = Auth::user();
         $hotel_id = $user->hotel->id;
@@ -89,11 +91,26 @@ class HotelController extends Controller
                 'hotel.user_id'
             ])
             ->get();
-            return json_encode($hotel);
+
+            $facilitiy = DB::table('room')
+                ->join('room_facility','room.id','=','room_facility.room_id')
+                ->join('facility_category','facility_category.id','=','room_facility.facility_category_id')
+                ->where('hotel_id',$hotel_id)
+                ->distinct('facility_category.id')
+                ->select('facility_category.*')
+                ->get();
+
+            //return json_encode($hotel);
+            return response()->json([
+                'hotel' => $hotel,
+                'facility' => $facilitiy,
+                'room' => $user->hotel->rooms
+                ]);
         } else {
             return "akses ditolak";
         }
     }
+
 
     public function getHotelFacilities(){
         $user = Auth::user();
@@ -167,10 +184,11 @@ class HotelController extends Controller
         }
     }
 
-    public function uploadPicture(Request $request, $id){
-        $user_id = Auth::user()->id;
-        $hotel = hotel::find($id);
-        if(!empty($request->file('room_picture'))) {
+    public function uploadPicture(Request $request){
+        $user = Auth::user();
+        $hotel = $user->hotel;
+
+        if(!empty($request->file('hotel_picture'))) {
 
             $validator = Validator::make($request->all(), [
                 'hotel_picture' => 'image|mimes:jpeg,png,jpg|max:2048',
@@ -180,15 +198,16 @@ class HotelController extends Controller
                 return response()->json($validator->errors()->toJson(), 400);
             }
             
-            if($user_id == $hotel->user_id){
+            if($hotel->hotel_picture != null){
                 unlink('storage/'.$hotel->hotel_picture);
-                $file = $request->file('hotel_picture');
+            }
+
+            $file = $request->file('hotel_picture');
                 $upload_dest = 'hotel_picture';
                 $extension = $file->extension();
                 $path = $file->store($upload_dest);
                 $hotel->hotel_picture = $path;
 
-            }
             $hotel->save();
         }
 
