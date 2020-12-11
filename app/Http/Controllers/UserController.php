@@ -196,6 +196,7 @@ class UserController extends Controller
         }
     
         unlink('storage/'.$user->user_picture);
+
         $file = $request->file('user_picture');
         $upload_dest = 'user_picture';
         $extension = $file->extension();
@@ -210,6 +211,8 @@ class UserController extends Controller
 
     public function updatePassword(Request $request){
         $user = Auth::user();
+        $status = "Password Update Successfully";
+
 
         $validator = Validator::make($request->all(), [
             'password' => 'required|string|min:6|confirmed',
@@ -222,7 +225,11 @@ class UserController extends Controller
         $user->save();
         auth()->logout();
 
-        return response()->json(['message' => 'Password Update Successfully'],200);
+        // return response()->json(['message' => 'Password Update Successfully'],200);
+        return response()->json([
+            'success' => true,
+            'message' => $status
+        ]);
 
     }
 
