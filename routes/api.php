@@ -31,6 +31,7 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 Route::post('/user/register', [UserController::class, 'register']);
 Route::post('/user/registerCustomer', [UserController::class, 'registerCustomer']);
 Route::post('/user/login', [UserController::class, 'login']);
+Route::post('/auth/refresh_token', [UserController::class, 'refreshToken']);
 
 Route::middleware('jwt.verify')->group(function () {  
     Route::get('test', [UserController::class, 'validateToken']);   

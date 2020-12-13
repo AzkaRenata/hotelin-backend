@@ -144,7 +144,8 @@ class BookingController extends Controller
                 ->where('hotel.id',$hotel_id)
                 ->select('booking.*','hotel.hotel_name',
                     'room.room_type','room.bed_type',
-                    'room.room_price','users.name');
+                    'room.room_price','users.name')
+                ->orderBy('booking.booking_time');
                 if($status_id == null){
                     return $booking->get();
                 } else {
