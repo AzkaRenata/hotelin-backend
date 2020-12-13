@@ -264,8 +264,11 @@ class UserController extends Controller
         if($validator->fails()){
             return response()->json($validator->errors()->toJson(), 400);
         }
-    
-        unlink('storage/'.$user->user_picture);
+        
+        if ($user->user_picure != null){
+            unlink('storage/'.$user->user_picture);
+        }
+
         $file = $request->file('user_picture');
         $upload_dest = 'user_picture';
         $extension = $file->extension();
