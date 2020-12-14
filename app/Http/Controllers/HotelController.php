@@ -198,11 +198,11 @@ class HotelController extends Controller
                 return response()->json($validator->errors()->toJson(), 400);
             }
             
-            if($hotel->hotel_picture != null){
-                unlink('storage/'.$hotel->hotel_picture);
-            }
-
-            $file = $request->file('hotel_picture');
+            if($user_id == $hotel->user_id){
+                if($hotel->hotel_picture != null){
+                    unlink('storage/'.$hotel->hotel_picture);
+                }
+                $file = $request->file('hotel_picture');
                 $upload_dest = 'hotel_picture';
                 $extension = $file->extension();
                 $path = $file->store($upload_dest);
@@ -234,13 +234,13 @@ class HotelController extends Controller
             $hotel->user_id = $user->id;
 
             if(!empty($request->file('hotel_picture'))) {
-                unlink('storage/'.$hotel->hotel_picture);
+                if($hotel->hotel_picture != null){
+                    unlink('storage/'.$hotel->hotel_picture);
+                }
                 $file = $request->file('hotel_picture');
                 $upload_dest = 'hotel_picture';
                 $extension = $file->extension();
-                $path = $file->storeAs(
-                    $upload_dest, $hotel->user_id.'.'.$extension
-                );
+                $path = $file->store($upload_dest);
                 $hotel->hotel_picture = $path;
 
             }
@@ -258,7 +258,9 @@ class HotelController extends Controller
         $user = Auth::user();
 
         if($user->user_level == 1 && $user->id == $hotel->user_id){
-            unlink('storage/'.$hotel->hotel_picture);
+            if($hotel->hotel_picture != null){
+                unlink('storage/'.$hotel->hotel_picture);
+            }
             $hotel->delete();
 
             return "Data berhasil dihapus";
