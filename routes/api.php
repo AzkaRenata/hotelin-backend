@@ -49,7 +49,7 @@ Route::middleware('jwt.verify')->group(function () {
     Route::delete('/hotel/delete/{id}', [HotelController::class,'delete']);
     Route::get('/hotel/detail/{id}', [HotelController::class,'findHotelType']);
     Route::get('/hotel/profile', [HotelController::class,'getHotelProfile']);
-    Route::put('/hotel/upload-picture/{id}', [HotelController::class,'uploadPicture']);
+    Route::post('/hotel/upload-picture', [HotelController::class,'uploadPicture']);
     Route::get('/hotel/facility', [HotelController::class,'getHotelFacilities']);
     Route::get('/hotel/price', [HotelController::class,'getHotelPrice']);
     
@@ -65,7 +65,7 @@ Route::middleware('jwt.verify')->group(function () {
     Route::get('/room/list/{id}', [RoomController::class, 'getRoomById']);
     Route::post('/room/create', [RoomController::class,'create']);
     Route::post('/room/update/{id}', [RoomController::class,'update']);
-    Route::put('/room/upload-picture/{id}', [RoomController::class,'uploadPicture']);
+    Route::post('/room/upload-picture/{id}', [RoomController::class,'uploadPicture']);
     Route::delete('/room/delete/{id}', [RoomController::class,'delete']);
     Route::get('/room/detail/{id}', [RoomController::class,'getRoomDetail']);
     Route::get('/room/hotel/{id}', [RoomController::class,'showRoomByHotel']);

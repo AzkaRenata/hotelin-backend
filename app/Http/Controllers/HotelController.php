@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\hotel;
 use App\Models\room_facility;
 use App\Models\facility_category;
+use Illuminate\Http\File;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
@@ -183,10 +184,11 @@ class HotelController extends Controller
         }
     }
 
-    public function uploadPicture(Request $request, $id){
-        $user_id = Auth::user()->id;
-        $hotel = hotel::find($id);
-        if(!empty($request->file('room_picture'))) {
+    public function uploadPicture(Request $request){
+        $user = Auth::user();
+        $hotel = $user->hotel;
+
+        if(!empty($request->file('hotel_picture'))) {
 
             $validator = Validator::make($request->all(), [
                 'hotel_picture' => 'image|mimes:jpeg,png,jpg|max:2048',
@@ -206,7 +208,6 @@ class HotelController extends Controller
                 $path = $file->store($upload_dest);
                 $hotel->hotel_picture = $path;
 
-            }
             $hotel->save();
         }
 
