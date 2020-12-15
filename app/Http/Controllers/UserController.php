@@ -286,20 +286,37 @@ class UserController extends Controller
 
         $validator = Validator::make($request->all(), [
             'password' => 'required|string|min:6|confirmed',
+            'old_password' => 'required|string|min:6|max:100'
         ]);
         if($validator->fails()){
             return response()->json($validator->errors()->toJson(), 400);
         }
         
-        $user->password = Hash::make($request->password);
-        $user->save();
-        auth()->logout();
+
+
+        if(Hash::check($request->password, $user->password)){
+            return response()->json([
+                'success' => false,
+                'message' => "Password baru dan lama tidak boleh sama"
+            ]);
+        }else if(Hash::check($request->old_password, $user->password)){
+            
+            $user->password = Hash::make($request->password);
+            $user->save();
+            auth()->logout();
+            return response()->json([
+                'success' => true,
+                'message' => "Berhasil"
+            ]);
+        }else{
+            return response()->json([
+                'success' => false,
+                'message' => "Password lama salah"
+            ]);
+        }
+
 
         // return response()->json(['message' => 'Password Update Successfully'],200);
-        return response()->json([
-            'success' => true,
-            'message' => "Berhasil"
-        ]);
 
     }
 
