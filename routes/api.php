@@ -47,7 +47,7 @@ Route::middleware('jwt.verify')->group(function () {
     Route::post('/hotel/create', [HotelController::class,'create']);
     Route::post('/hotel/update', [HotelController::class,'update']);
     Route::delete('/hotel/delete/{id}', [HotelController::class,'delete']);
-    Route::get('/hotel/detail/{id}', [HotelController::class,'findHotelType']);
+    Route::get('/hotel/detail/', [HotelController::class,'getHotelByOwner']);
     Route::get('/hotel/profile', [HotelController::class,'getHotelProfile']);
     Route::post('/hotel/upload-picture', [HotelController::class,'uploadPicture']);
     Route::get('/hotel/facility', [HotelController::class,'getHotelFacilities']);

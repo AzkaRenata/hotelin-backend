@@ -18,8 +18,12 @@ class HotelController extends Controller
         return hotel::all();
     }
 
-    public function findHotelType($id){
-        return hotel::select()->where('id', $id)->get();
+    public function findHotelType(){
+        $user = Auth::user();
+        $hotel = hotel::select()->where('user_id', $user->id)->get();
+        
+        //return hotel::select()->where('id', $id)->get();
+        return response()->json(['hotel' => $hotel]);
     }
 
     public function getHotelByParam(Request $request, $param){
@@ -55,7 +59,7 @@ class HotelController extends Controller
         $user = Auth::user();
         $hotel = hotel::select()->where('user_id', $user->id)->get();
         if($user->user_level == 1){
-            return json_encode($hotel);
+            return response()->json(['hotel' => $hotel]);
         } else {
             return "akses ditolak";
         }
@@ -78,7 +82,10 @@ class HotelController extends Controller
                 hotel.hotel_desc,
                 hotel.hotel_picture,
                 hotel.user_id, 
-                avg(review.hotel_rating) as hotel_rating, 
+                (CASE
+                    WHEN avg(review.hotel_rating) is null THEN "0"
+                    ELSE avg(review.hotel_rating)
+                END) as hotel_rating, 
                 min(room.room_price) as hotel_price'
                 )
             )
@@ -91,6 +98,10 @@ class HotelController extends Controller
                 'hotel.user_id'
             ])
             ->get();
+            
+            
+
+            
 
             $facilitiy = DB::table('room')
                 ->join('room_facility','room.id','=','room_facility.room_id')
@@ -198,7 +209,7 @@ class HotelController extends Controller
                 return response()->json($validator->errors()->toJson(), 400);
             }
             
-            if($user_id == $hotel->user_id){
+            if($user->id == $hotel->user_id){
                 if($hotel->hotel_picture != null){
                     unlink('storage/'.$hotel->hotel_picture);
                 }
@@ -209,6 +220,7 @@ class HotelController extends Controller
                 $hotel->hotel_picture = $path;
 
             $hotel->save();
+            }
         }
 
         return $hotel;
@@ -220,7 +232,7 @@ class HotelController extends Controller
         $hotel = $user->hotel;
 
         $validator = Validator::make($request->all(), [
-            'user_picture' => 'image|mimes:jpeg,png,jpg|max:2048',
+            'hotel_picture' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         if($validator->fails()){
@@ -231,23 +243,19 @@ class HotelController extends Controller
             $hotel->hotel_name = $request->hotel_name;
             $hotel->hotel_location = $request->hotel_location;
             $hotel->hotel_desc = $request->hotel_desc;
-            $hotel->user_id = $user->id;
 
             if(!empty($request->file('hotel_picture'))) {
-                if($hotel->hotel_picture != null){
-                    unlink('storage/'.$hotel->hotel_picture);
-                }
+                
                 $file = $request->file('hotel_picture');
                 $upload_dest = 'hotel_picture';
                 $extension = $file->extension();
                 $path = $file->store($upload_dest);
                 $hotel->hotel_picture = $path;
-
             }
 
             $hotel->save();
 
-            return $hotel;
+            return response()->json(['hotel' => $hotel]);
         }else{
             return "Akses Ditolak";
         }
