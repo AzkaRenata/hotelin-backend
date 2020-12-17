@@ -171,8 +171,8 @@ class RoomController extends Controller
         $user = Auth::user();
 
         if($user->user_level == 1 && $user->id == $room->hotel->user_id){
-            $room->hotel_id = $request->hotel_id;
             $room->room_type = $request->room_type;
+            $room->bed_type = $request->bed_type;
             $room->room_price = $request->room_price;
             $room->guest_capacity = $request->guest_capacity;
 
