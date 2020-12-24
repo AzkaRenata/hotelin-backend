@@ -181,18 +181,18 @@ class BookingController extends Controller
     }
 
     public function showBookingById($id){
-        $bookinghistory = DB::table('booking')
+        $bookingDetail = DB::table('booking')
                 ->join('users','users.id','=','booking.user_id')
                 ->join('room','room.id','=','booking.room_id')
                 ->join('hotel','hotel.id','=','room.hotel_id')
                 ->where('booking.id',$id)
                 ->select('booking.*','users.name','users.email','users.telp',
-                    'hotel.hotel_name','hotel.hotel_picture','hotel.hotel_location',
-                    'room.room_type','room.bed_type','room.room_price',
+                    'users.user_picture','hotel.hotel_name','hotel.hotel_picture',
+                    'hotel.hotel_location','room.room_type','room.bed_type','room.room_price',
                     'room.guest_capacity')
                 ->first();
         
-        return response()->json(compact('bookinghistory'),200);
+        return response()->json(compact('bookingDetail'),200);
     }
 
 }
