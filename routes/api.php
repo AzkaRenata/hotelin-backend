@@ -59,6 +59,7 @@ Route::middleware('jwt.verify')->group(function () {
     Route::get('/booking/list/{status_id?}', [BookingController::class,'showBookings']);
     Route::get('/booking/show/{id}', [BookingController::class,'showBookingById']);
     Route::get('/booking/detail/{id}', [BookingController::class,'findBookingType']);
+    Route::post('/booking/check', [BookingController::class,'checkBooking']);
 
     Route::get('/room', [RoomController::class,'index']);
     Route::get('/room/list/{id}', [RoomController::class, 'getRoomById']);
