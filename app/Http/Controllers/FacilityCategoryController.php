@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\facility_category;
+use Illuminate\Support\Facades\Validator;
 
 class FacilityCategoryController extends Controller
 {

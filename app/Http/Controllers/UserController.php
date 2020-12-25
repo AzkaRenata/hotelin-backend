@@ -16,6 +16,19 @@ use Illuminate\Support\Facades\Auth;
 class UserController extends Controller
 {
 
+    public function refreshToken(){
+        $token = JWTAuth::getToken();
+        if(!$token){
+            throw new BadRequestHtttpException('Token not provided');
+        }
+        try{
+            $token = JWTAuth::refresh($token);
+        }catch(TokenInvalidException $e){
+            throw new AccessDeniedHttpException('The token is invalid');
+        }
+        return response()->json(['token'=>$token]);
+    }
+
     public function validateToken(){
         try {
 
@@ -135,7 +148,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users',
             'email' => 'required|string|email|max:255|unique:users',
-            'password' => 'required|string|min:6|confirmed',
+            'password' => 'required|string|min:8|confirmed',
             //'user_level' => 'required|integer|max:2|min:1',
             'user_picture' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
@@ -264,11 +277,9 @@ class UserController extends Controller
         if($validator->fails()){
             return response()->json($validator->errors()->toJson(), 400);
         }
-        
-        if ($user->user_picure != null){
+        if($user->user_picture != null){
             unlink('storage/'.$user->user_picture);
         }
-
         $file = $request->file('user_picture');
         $upload_dest = 'user_picture';
         $extension = $file->extension();
