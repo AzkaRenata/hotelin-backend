@@ -69,8 +69,9 @@ Route::middleware('jwt.verify')->group(function () {
     Route::post('/room/upload-picture/{id}', [RoomController::class,'uploadPicture']);
     Route::delete('/room/delete/{id}', [RoomController::class,'delete']);
     Route::get('/room/detail/{id}', [RoomController::class,'getRoomDetail']);
-    Route::get('/room/hotel/{id}', [RoomController::class,'showRoomByHotel']);
+    Route::get('/room/hotel/{id}', [RoomController::class,'showRoomByHotel']); 
     Route::get('/room/list', [RoomController::class,'getHotelRoom']);
+    Route::post('/room/validate-time/{hotel_id}', [RoomController::class,'getRoomByTime']);
 
     Route::get('/facility-category', [FacilityCategoryController::class, 'index']);
     Route::post('/facility-category/create', [FacilityCategoryController::class, 'create']);
