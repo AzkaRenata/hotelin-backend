@@ -185,7 +185,6 @@ class UserController extends Controller
     public function update(Request $request){
         $user = Auth::user();
         $id = $user->id;
-
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users,id,$id',
@@ -193,7 +192,6 @@ class UserController extends Controller
             //'user_level' => 'required|integer|min:1|max:2',
             'user_picture' => 'image|mimes:jpeg,jpg,png|max:2048',
         ]);
-
         if($validator->fails()){
             return response()->json($validator->errors()->toJson(), 400);
         }
@@ -205,7 +203,6 @@ class UserController extends Controller
         if($request->name  != null){
             $user->name = $request->name;
         }
-
         if($request->email != null){
             $user->email = $request->email;
         }
@@ -213,17 +210,14 @@ class UserController extends Controller
         if($request->gender != null){
             $user->gender = $request->gender;    
         }
-
         if($request->telp != null){
             $user->telp = $request->telp;
         }
-
         if($request->address != null){
             $user->address = $request->address;
         }
         
         $user->save();
-
         return response()->json(compact('user'), 200);
     }
     */
@@ -303,16 +297,37 @@ class UserController extends Controller
 
         $validator = Validator::make($request->all(), [
             'password' => 'required|string|min:6|confirmed',
+            'old_password' => 'required|string|min:6|max:100'
         ]);
         if($validator->fails()){
             return response()->json($validator->errors()->toJson(), 400);
         }
         
-        $user->password = Hash::make($request->password);
-        $user->save();
-        auth()->logout();
 
-        return response()->json(['message' => 'Password Update Successfully'],200);
+
+        if(Hash::check($request->password, $user->password)){
+            return response()->json([
+                'success' => false,
+                'message' => "Password baru dan lama tidak boleh sama"
+            ]);
+        }else if(Hash::check($request->old_password, $user->password)){
+            
+            $user->password = Hash::make($request->password);
+            $user->save();
+            auth()->logout();
+            return response()->json([
+                'success' => true,
+                'message' => "Berhasil"
+            ]);
+        }else{
+            return response()->json([
+                'success' => false,
+                'message' => "Password lama salah"
+            ]);
+        }
+
+
+        // return response()->json(['message' => 'Password Update Successfully'],200);
 
     }
 
