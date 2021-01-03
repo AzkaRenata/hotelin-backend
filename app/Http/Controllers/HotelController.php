@@ -26,6 +26,12 @@ class HotelController extends Controller
         return response()->json(['hotel' => $hotel]);
     }
 
+    public function getHotelById($id){
+        $hotel = hotel::select()->where('id', $id)->first();
+        
+        return response()->json(['hotel' => $hotel], 200);
+    }
+
     public function getHotelByParam(Request $request, $param){
         if($param == 'location'){
             $hotel = DB::table('hotel')
