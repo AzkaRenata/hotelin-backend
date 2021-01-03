@@ -116,8 +116,10 @@ class RoomController extends Controller
             $hotel = hotel::where('user_id', '=', $user->id)->first();
 
             $room->hotel_id = $hotel->id;
+            $room->room_code = $request->room_code;
             $room->room_type = $request->room_type;
             $room->bed_type = $request->bed_type;
+            $room->bed_count = $request->bed_count;
             $room->room_price = $request->room_price;
             $room->guest_capacity = $request->guest_capacity;
             if(!empty($request->file('room_picture'))) {
@@ -181,8 +183,10 @@ class RoomController extends Controller
         $user = Auth::user();
 
         if($user->user_level == 1 && $user->id == $room->hotel->user_id){
+            $room->room_code = $request->room_code;
             $room->room_type = $request->room_type;
             $room->bed_type = $request->bed_type;
+            $room->bed_count = $request->bed_count;
             $room->room_price = $request->room_price;
             $room->guest_capacity = $request->guest_capacity;
 
