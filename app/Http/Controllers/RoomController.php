@@ -37,8 +37,7 @@ class RoomController extends Controller
 
     public function getRoomDetail($id){
         $user = Auth::user();
-        if($user->user_level == 1){
-            $hotel = hotel::select('hotel.*')
+        $hotel = hotel::select('hotel.*')
                     ->leftJoin('room','hotel.id','=','room.hotel_id')
                     ->where('room.id',$id)
                     ->first();
@@ -47,13 +46,19 @@ class RoomController extends Controller
                         ->leftJoin('facility_category','facility_category.id','=','room_facility.facility_category_id')
                         ->where('room_facility.room_id',$id)
                         ->get();
+
+        if($user->user_level == 1){
             return response()->json([
                 'hotel' => $hotel,
                 'room' => $room,
                 'facility' => $facility
                 ]);
+        }else if($user->user_level == 2){
+            return response()->json(['room' => $room], 200);
+        }else{
+            return "Akses Ditolak";
         }
-        return "Akses Ditolak";
+        
     }
 
     public function getHotelRoom(){
