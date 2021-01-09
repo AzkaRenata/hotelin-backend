@@ -20,6 +20,7 @@ class CreateBookingTable extends Migration
             $table->tinyInteger('booking_status');
             $table->dateTime('check_in', 0);
             $table->dateTime('check_out', 0);
+            $table->tinyInteger('days_count');
             $table->timestamp('booking_time', 0)->nullable();
         });
     }

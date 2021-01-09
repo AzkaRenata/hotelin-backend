@@ -37,8 +37,7 @@ class RoomController extends Controller
 
     public function getRoomDetail($id){
         $user = Auth::user();
-        if($user->user_level == 1){
-            $hotel = hotel::select('hotel.*')
+        $hotel = hotel::select('hotel.*')
                     ->leftJoin('room','hotel.id','=','room.hotel_id')
                     ->where('room.id',$id)
                     ->first();
@@ -47,13 +46,19 @@ class RoomController extends Controller
                         ->leftJoin('facility_category','facility_category.id','=','room_facility.facility_category_id')
                         ->where('room_facility.room_id',$id)
                         ->get();
+
+        if($user->user_level == 1){
             return response()->json([
                 'hotel' => $hotel,
                 'room' => $room,
                 'facility' => $facility
                 ]);
+        }else if($user->user_level == 2){
+            return response()->json(['room' => $room], 200);
+        }else{
+            return "Akses Ditolak";
         }
-        return "Akses Ditolak";
+        
     }
 
     public function getHotelRoom(){
@@ -116,8 +121,10 @@ class RoomController extends Controller
             $hotel = hotel::where('user_id', '=', $user->id)->first();
 
             $room->hotel_id = $hotel->id;
+            $room->room_code = $request->room_code;
             $room->room_type = $request->room_type;
             $room->bed_type = $request->bed_type;
+            $room->bed_count = $request->bed_count;
             $room->room_price = $request->room_price;
             $room->guest_capacity = $request->guest_capacity;
             if(!empty($request->file('room_picture'))) {
@@ -181,8 +188,10 @@ class RoomController extends Controller
         $user = Auth::user();
 
         if($user->user_level == 1 && $user->id == $room->hotel->user_id){
+            $room->room_code = $request->room_code;
             $room->room_type = $request->room_type;
             $room->bed_type = $request->bed_type;
+            $room->bed_count = $request->bed_count;
             $room->room_price = $request->room_price;
             $room->guest_capacity = $request->guest_capacity;
 
@@ -230,23 +239,23 @@ class RoomController extends Controller
 
     public function getRoomByTime(request $request, $hotel_id){       
         $room = DB::table('room')
-        ->leftJoin('hotel','hotel.id','=','room.hotel_id')
-        ->leftJoin('room_facility','room.id','=','room_facility.room_id')
-        ->leftJoin('facility_category','facility_category.id','=','room_facility.facility_category_id')
-        ->join('booking', 'booking.room_id', 'room.id')
-        ->where('hotel.id',$hotel_id)
-        ->select('room.*','hotel.hotel_name',
-            'room_facility.facility_category_id',
-            'facility_category.facility_name',
-            'facility_category.facility_icon',
-            'booking.booking_status', 
-            'booking.check_in',
-            'booking.check_out',
-            'booking.user_id')
-        // ->select('room.id', 'room.hotel_id', 'booking.booking_status', 'booking.user_id')
+            ->leftJoin('hotel','hotel.id','=','room.hotel_id')
+            ->leftJoin('room_facility','room.id','=','room_facility.room_id')
+            ->leftJoin('facility_category','facility_category.id','=','room_facility.facility_category_id')
+            ->join('booking', 'booking.room_id', 'room.id')
+            ->where('hotel.id',$hotel_id)
+            ->select('room.*','hotel.hotel_name',
+                'room_facility.facility_category_id',
+                'facility_category.facility_name',
+                'facility_category.facility_icon',
+                'booking.booking_status', 
+                'booking.check_in',
+                'booking.check_out',
+                'booking.user_id')
+            // ->select('room.id', 'room.hotel_id', 'booking.booking_status', 'booking.user_id')
 
-        ->orderBy('room.id','asc')
-        ->orderBy('room_facility.facility_category_id','asc')
+            ->orderBy('room.id','asc')
+            ->orderBy('room_facility.facility_category_id','asc')
              ->get();
          
          $start = $request->check_in;
@@ -280,5 +289,44 @@ class RoomController extends Controller
          
          //$room = $room->where('is_booked', false);
          return $room;
+     }
+
+     public function getAvailableRoom(Request $request, $id){
+        $room = DB::table('room')
+            ->select('*')
+            ->where('room.hotel_id', $id)
+            ->get();
+        
+        $start = $request->check_in;
+        $end = $request->check_out;
+        $interval = DateInterval::createFromDateString('1 day');
+        $period = new DatePeriod(new DateTime($start), $interval, new DateTime($end));
+
+        foreach($room as $rm){
+            $rm->is_booked = false;
+            $booking = DB::table('booking')
+                ->select('*')
+                ->where('room_id', $rm->id)
+                ->where('booking_status', 1)
+                ->get();
+            
+                foreach($period as $dt){
+                    if(!$booking->isEmpty()){
+                        foreach($booking as $book){
+                            $tempInterval = DateInterval::createFromDateString('1 day');
+                            $tempPeriod = new DatePeriod(new DateTime($book->check_in), $tempInterval, new DateTime($book->check_out));
+        
+                            foreach($tempPeriod as $tmp){
+                                if($tmp == $dt){
+                                    $rm->is_booked = true;
+                                }
+                            }
+                        }   
+                    }
+                }
+        }
+        
+        //$room = $room::select('*')->where('is_booked', false);
+        return response()->json(['roomList' => $room], 200);
      }
 }

@@ -26,20 +26,27 @@ class HotelController extends Controller
         return response()->json(['hotel' => $hotel]);
     }
 
+    public function getHotelById($id){
+        $hotel = hotel::select()->where('id', $id)->first();
+        
+        return response()->json(['hotel' => $hotel], 200);
+    }
+
     public function getHotelByParam(Request $request, $param){
         if($param == 'location'){
-           //$hotel = hotel::where('hotel_location', $request->query('hotel_location'))->get(); 
-
             $hotel = DB::table('hotel')
             ->leftJoin('room','hotel.id','=','room.hotel_id')
-            ->where('hotel.hotel_location',$request->query('hotel_location'))
+            ->where('hotel.hotel_location', 'LIKE', "%".$request->query('hotel_location')."%")
             ->select(DB::raw(
                 'hotel.id,
                 hotel.hotel_name,
                 hotel.hotel_location,
                 hotel.hotel_desc,
-                hotel.hotel_picture, 
-                min(room.room_price) as hotel_price'
+                hotel.hotel_picture,
+                (CASE
+                    WHEN min(room.room_price) is null THEN "0"
+                    ELSE min(room.room_price)
+                END) as hotel_price'
                 )
             )
             ->groupBy([
@@ -50,9 +57,10 @@ class HotelController extends Controller
                 'hotel.hotel_picture',
             ])
             ->get();
-            return json_encode($hotel);
+            
+            //return json_encode($hotel);
+            return response()->json(['hotelList' => $hotel], 200);
         }
-        
     }
 
     public function getHotelByOwner(){

@@ -29,8 +29,9 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 
 Route::post('/user/register', [UserController::class, 'register']);
-Route::post('/user/registerCustomer', [UserController::class, 'registerCustomer']);
+Route::post('/user/register/customer', [UserController::class, 'registerCustomer']);
 Route::post('/user/login', [UserController::class, 'login']);
+Route::post('/user/login/customer', [UserController::class, 'loginCustomer']);
 Route::post('/auth/refresh_token', [UserController::class, 'refreshToken']);
 
 Route::middleware('jwt.verify')->group(function () {  
@@ -47,6 +48,7 @@ Route::middleware('jwt.verify')->group(function () {
     Route::post('/hotel/create', [HotelController::class,'create']);
     Route::post('/hotel/update', [HotelController::class,'update']);
     Route::delete('/hotel/delete/{id}', [HotelController::class,'delete']);
+    Route::get('/hotel/detail-by-id/{id}', [HotelController::class,'getHotelById']);
     Route::get('/hotel/detail/', [HotelController::class,'getHotelByOwner']);
     Route::get('/hotel/profile', [HotelController::class,'getHotelProfile']);
     Route::post('/hotel/upload-picture', [HotelController::class,'uploadPicture']);
@@ -72,6 +74,7 @@ Route::middleware('jwt.verify')->group(function () {
     Route::get('/room/hotel/{id}', [RoomController::class,'showRoomByHotel']); 
     Route::get('/room/list', [RoomController::class,'getHotelRoom']);
     Route::post('/room/validate-time/{hotel_id}', [RoomController::class,'getRoomByTime']);
+    Route::post('/room/show-available/{id}', [RoomController::class,'getAvailableRoom']);
 
     Route::get('/facility-category', [FacilityCategoryController::class, 'index']);
     Route::post('/facility-category/create', [FacilityCategoryController::class, 'create']);
