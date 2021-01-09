@@ -36,7 +36,7 @@ class HotelController extends Controller
         if($param == 'location'){
             $hotel = DB::table('hotel')
             ->leftJoin('room','hotel.id','=','room.hotel_id')
-            ->where('hotel.hotel_location',$request->query('hotel_location'))
+            ->where('hotel.hotel_location', 'LIKE', "%".$request->query('hotel_location')."%")
             ->select(DB::raw(
                 'hotel.id,
                 hotel.hotel_name,
