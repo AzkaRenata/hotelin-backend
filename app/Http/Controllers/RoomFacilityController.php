@@ -14,23 +14,80 @@ class RoomFacilityController extends Controller
         return room_facility::all();
     }
 
-    public function getFacilityByRoomId($hotel_id){
-        return room_facility::where('hotel_id', '=', $hotel_id);
+    public function getFacilityByRoomId($room_id){
+        return room_facility::where('room_id', '=', $room_id)->get();
     }
 
     public function create(request $request, $room_id, $facility_id){
-        $roomFacility = new room_facility();
+        // $roomFacility = new room_facility();
+        // $user = Auth::user();
+        // $room = room::find($room_id);
+        // $hotel = hotel::where('id', $room->hotel_id)->first();
+
+        // if($user->user_level == 1 && $user->id == $hotel->user_id){
+        //     $roomFacility->room_id = $room->id;
+        //     $roomFacility->facility_category_id = $facility_id;
+        //     $roomFacility->description = $request->description;
+        //     $roomFacility->save();
+
+        //     return $roomFacility;    
+        // }else{
+        //     return "Akses Ditolak";
+        // }
+    }
+
+    public function createManyRow(Request $request, $room_id){
+        $data = [[]];
+        $i = 0;
+        $j = 0;
+        foreach ($request->all() as $key => $value) {
+            if($j%2 == 0){
+                $data[$i]["room_id"] = $room_id;
+                $data[$i]["facility_category_id"] = $value;    
+            } else {
+                $data[$i]["description"] = $value;
+                $i++;
+            }
+            $j++;
+        }
+
         $user = Auth::user();
         $room = room::find($room_id);
         $hotel = hotel::where('id', $room->hotel_id)->first();
 
         if($user->user_level == 1 && $user->id == $hotel->user_id){
-            $roomFacility->room_id = $room->id;
-            $roomFacility->facility_category_id = $facility_id;
-            $roomFacility->description = $request->description;
-            $roomFacility->save();
+            
+            $result = room_facility::insert($data);
+            return $result;    
+        }else{
+            return "Akses Ditolak";
+        }
+    }
 
-            return $roomFacility;    
+    public function updateManyRow(Request $request, $room_id){
+        room_facility::where('room_id',$room_id)->delete();
+        $data = [[]];
+        $i = 0;
+        $j = 0;
+        foreach ($request->all() as $key => $value) {
+            if($j%2 == 0){
+                $data[$i]["room_id"] = $room_id;
+                $data[$i]["facility_category_id"] = $value;    
+            } else {
+                $data[$i]["description"] = $value;
+                $i++;
+            }
+            $j++;
+        }
+
+        $user = Auth::user();
+        $room = room::find($room_id);
+        $hotel = hotel::where('id', $room->hotel_id)->first();
+
+        if($user->user_level == 1 && $user->id == $hotel->user_id){
+            
+            $result = room_facility::insert($data);
+            return $result;    
         }else{
             return "Akses Ditolak";
         }
