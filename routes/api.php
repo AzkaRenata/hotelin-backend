@@ -37,9 +37,9 @@ Route::post('/auth/refresh_token', [UserController::class, 'refreshToken']);
 Route::middleware('jwt.verify')->group(function () {  
     Route::get('test', [UserController::class, 'validateToken']);   
 	Route::get('user', [UserController::class, 'index']);
-    Route::post('/user/update', [UserController::class, 'update']);
-    Route::post('/user/update-picture', [UserController::class, 'updatePicture']);
-    Route::post('/user/update-password', [UserController::class, 'updatePassword']);
+    Route::post('/user/update/user', [UserController::class, 'updateUser']);
+    Route::post('/user/update/picture', [UserController::class, 'updatePicture']);
+    Route::post('/user/update/password', [UserController::class, 'updatePassword']);
     Route::delete('/user/delete', [UserController::class, 'delete']);
     Route::get('/user/logout', [UserController::class, 'logout']);
 
@@ -63,6 +63,7 @@ Route::middleware('jwt.verify')->group(function () {
     Route::get('/booking/detail/{id}', [BookingController::class,'showBookingById']);
     // Route::get('/booking/detail/{id}', [BookingController::class,'findBookingType']);
     Route::post('/booking/check', [BookingController::class,'checkBooking']);
+    Route::get('/booking/cancel/{id}', [BookingController::class,'cancelBooking']);
 
     Route::get('/room', [RoomController::class,'index']);
     Route::get('/room/list/{id}', [RoomController::class, 'getRoomById']);

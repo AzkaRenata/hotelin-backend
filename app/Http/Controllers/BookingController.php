@@ -118,6 +118,20 @@ class BookingController extends Controller
         }
     }
 
+    public function cancelBooking($id){
+        $user = Auth::user();
+        $booking = booking::find($id);
+
+        if ($booking->user_id == $user->id) {
+            $booking->booking_status = 3;
+            $booking->save();
+
+            return response()->json(['booking' => $booking], 200);
+        } else {
+            return response()->json(['message' => "Akses Ditolak"]);
+        }
+    }
+
     public function update(Request $request, $id)
     {
         $booking = booking::find($id);
