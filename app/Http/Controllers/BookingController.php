@@ -200,6 +200,7 @@ class BookingController extends Controller
                         'booking.*',
                         'hotel.hotel_name',
                         'room.room_type',
+                        'room.room_code',
                         'room.bed_type',
                         'room.room_price',
                         'users.name'
@@ -225,6 +226,7 @@ class BookingController extends Controller
                         'hotel.hotel_picture',
                         'hotel.hotel_location',
                         'room.room_type',
+                        'room.room_code',
                         'room.bed_type',
                         'room.room_price',
                         'users.name',
@@ -250,7 +252,7 @@ class BookingController extends Controller
 
     public function showBookingById($id)
     {
-        $bookinghistory = DB::table('booking')
+        $booking = DB::table('booking')
             ->join('users', 'users.id', '=', 'booking.user_id')
             ->join('room', 'room.id', '=', 'booking.room_id')
             ->join('hotel', 'hotel.id', '=', 'room.hotel_id')
@@ -264,12 +266,13 @@ class BookingController extends Controller
                 'hotel.hotel_picture',
                 'hotel.hotel_location',
                 'room.room_type',
+                'room.room_code',
                 'room.bed_type',
                 'room.room_price',
                 'room.guest_capacity'
             )
             ->first();
 
-        return response()->json(compact('bookinghistory'), 200);
+        return response()->json(compact('booking'), 200);
     }
 }
