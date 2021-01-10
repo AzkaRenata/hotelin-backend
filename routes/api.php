@@ -59,7 +59,7 @@ Route::middleware('jwt.verify')->group(function () {
     Route::post('/booking/update/{id}', [BookingController::class,'update']);
     Route::post('/booking/change-status/{id}/{status}', [BookingController::class,'updateBookingStatus']);
     Route::delete('/booking/delete/{id}', [BookingController::class,'delete']);
-    Route::get('/booking/list/{status_id?}', [BookingController::class,'showBookings']);
+    Route::get('/booking/list/{status_id}', [BookingController::class,'showBookings']);
     Route::get('/booking/detail/{id}', [BookingController::class,'showBookingById']);
     // Route::get('/booking/detail/{id}', [BookingController::class,'findBookingType']);
     Route::post('/booking/check', [BookingController::class,'checkBooking']);
@@ -82,7 +82,10 @@ Route::middleware('jwt.verify')->group(function () {
     Route::delete('/facility-category/delete/{id}', [FacilityCategoryController::class, 'delete']);
 
     Route::get('/room-facility', [RoomFacilityController::class, 'index']);
-    Route::post('/room-facility/{room}/{facility}', [RoomFacilityController::class, 'create']);
+    Route::get('/room-facility/list/{room_id}', [RoomFacilityController::class, 'getFacilityByRoomId']);
+    Route::post('/room-facility/create/{room}/{facility}', [RoomFacilityController::class, 'create']);
+    Route::post('/room-facility/create-many/{room_id}', [RoomFacilityController::class, 'createManyRow']);
+    Route::post('/room-facility/update-many/{room_id}', [RoomFacilityController::class, 'updateManyRow']);
     Route::put('/room-facility/update/{id}', [RoomFacilityController::class, 'update']);
     Route::delete('/room-facility/delete/{id}', [RoomFacilityController::class, 'delete']);
 
