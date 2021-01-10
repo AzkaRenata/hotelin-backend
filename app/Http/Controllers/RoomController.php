@@ -237,28 +237,7 @@ class RoomController extends Controller
         }
     }
 
-    public function getRoomByTime(request $request, $hotel_id){
-        // $hotel = DB::table('room')
-        //     ->leftJoin('hotel','hotel.id','=','room.hotel_id')
-        //     ->leftJoin('room_facility','room.id','=','room_facility.room_id')
-        //     ->leftJoin('facility_category','facility_category.id','=','room_facility.facility_category_id')
-        //     ->join('booking', 'booking.room_id', 'room.id')
-        //     ->where('hotel.id',$hotel_id)
-        //     ->select('room.*','hotel.hotel_name',
-        //         'room_facility.facility_category_id',
-        //         'facility_category.facility_name',
-        //         'facility_category.facility_icon',
-        //         'booking.booking_status', 
-        //         'booking.check_in',
-        //         'booking.check_out',
-        //         'booking.user_id')
-        //     // ->select('room.id', 'room.hotel_id', 'booking.booking_status', 'booking.user_id')
-
-        //     ->orderBy('room.id','asc')
-        //     ->orderBy('room_facility.facility_category_id','asc')
-        //     ->get();
-        // // return $hotel;
-        
+    public function getRoomByTime(request $request, $hotel_id){       
         $room = DB::table('room')
             ->leftJoin('hotel','hotel.id','=','room.hotel_id')
             ->leftJoin('room_facility','room.id','=','room_facility.room_id')
