@@ -184,7 +184,7 @@ class BookingController extends Controller
         return booking::select('user_id', 'room_id')->where('id', $id)->get();
     }
 
-    public function showBookings($status_id = null)
+    public function showBookings($status_id)
     {
         $user = Auth::user();
         //return booking::where('booking_status',$status_id);
@@ -216,25 +216,21 @@ class BookingController extends Controller
                     ->join('room', 'room.id', '=', 'booking.room_id')
                     ->join('hotel', 'hotel.id', '=', 'room.hotel_id')
                     ->where('users.id', $user->id)
-                    // ->whereIn('booking.check_in', ['2000-02-01','2000-02-20'])
-                    // ->whereBetween('booking.check_out', ['2000-01-20','2000-02-01'])
-                    // ->where('booking.check_out', '>', '2000-01-20')
                     ->select(
-                        'booking.*',
+                        'booking.id',
+                        'booking.check_in',
+                        'booking.check_out',
+                        'booking.total_price',
                         'hotel.hotel_name',
                         'hotel.hotel_picture',
                         'hotel.hotel_location',
-                        'room.room_type',
-                        'room.bed_type',
-                        'room.room_price',
-                        'users.name',
-                        'users.email',
-                        'users.telp'
+                        'room.room_code',
+                        'room.room_type'
                     );
                 if ($status_id == null) {
                     return $booking->get();
                 } else {
-                    return $booking->where('booking.booking_status', $status_id)->get();
+                    return response()->json(["booking" => $booking->where('booking.booking_status', $status_id)->get()]);
                 }
             }
         } else {
