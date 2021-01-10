@@ -196,49 +196,29 @@ class UserController extends Controller
         $token = JWTAuth::fromUser($user);
         return response()->json(compact('user','token'),200);
     }
-    public function update(Request $request){
+    public function updateUser(Request $request){
         $user = Auth::user();
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users,id,$id',
-            'email' => 'required|string|email|max:255|unique:users,id,$id',
-            //'user_level' => 'required|integer|min:1|max:2',
-            'user_picture' => 'image|mimes:jpeg,jpg,png|max:2048',
+            'email' => 'required|string|email|max:255|unique:users,id,$id'
         ]);
 
         if($validator->fails()){
             return response()->json($validator->errors()->toJson(), 400);
         }
-        
-        if($request->username != null){
-            $user->username = $request->username;
-        }
-            
-        
-        if($request->name  != null){
-            $user->name = $request->name;
-        }
 
-        if($request->email != null){
-            $user->email = $request->email;
-        }
-        
-        if($request->gender != null){
-            $user->gender = $request->gender;    
-        }
-
-        if($request->telp != null){
-            $user->telp = $request->telp;
-        }
-
-        if($request->address != null){
-            $user->address = $request->address;
-        }
+        $user->username = $request->username;
+        $user->name = $request->name;
+        $user->email = $request->email;
+        $user->gender = $request->gender;
+        $user->telp = $request->telp;
+        $user->address = $request->address;
 
         $user->save();
 
-        return response()->json(compact('user'));
+        return response()->json(['user' => $user], 200);
     }
 
     public function updatePicture(Request $request){
@@ -263,7 +243,7 @@ class UserController extends Controller
         $user->user_picture = $path;
         $user->save();
 
-        return response()->json(compact('user'));
+        return response()->json(['user' => $user], 200);
     }
 
     public function updatePassword(Request $request){
@@ -282,6 +262,7 @@ class UserController extends Controller
                 'success' => false,
                 'message' => "Password baru dan lama tidak boleh sama"
             ]);
+
         }else if(Hash::check($request->old_password, $user->password)){
             
             $user->password = Hash::make($request->password);
@@ -297,10 +278,6 @@ class UserController extends Controller
                 'message' => "Password lama salah"
             ]);
         }
-
-
-        // return response()->json(['message' => 'Password Update Successfully'],200);
-
     }
 
     public function delete(){
