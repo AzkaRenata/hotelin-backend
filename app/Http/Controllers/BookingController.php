@@ -247,27 +247,39 @@ class BookingController extends Controller
 
     public function showBookingById($id)
     {
-        $booking = DB::table('booking')
-            ->join('users', 'users.id', '=', 'booking.user_id')
-            ->join('room', 'room.id', '=', 'booking.room_id')
-            ->join('hotel', 'hotel.id', '=', 'room.hotel_id')
-            ->where('booking.id', $id)
-            ->select(
-                'booking.*',
-                'users.name',
-                'users.email',
-                'users.telp',
-                'hotel.hotel_name',
-                'hotel.hotel_picture',
-                'hotel.hotel_location',
-                'room.room_type',
-                'room.room_code',
-                'room.bed_type',
-                'room.room_price',
-                'room.guest_capacity'
-            )
-            ->first();
+        $loggedUser = Auth::user();
 
-        return response()->json(compact('booking'), 200);
+        $booking = DB::table('booking')
+                ->select("*")
+                ->where('id', $id)
+                ->first();
+        $room = DB::table('room')
+                ->select("*")
+                ->where('id', $booking->room_id)
+                ->first();
+        $hotel = DB::table('hotel')
+                ->select("*")
+                ->where('id', $room->hotel_id)
+                ->first();
+        $user = DB::table('users')
+                ->select("*")
+                ->where('id', $booking->user_id)
+                ->first();
+
+        if($loggedUser->user_level == 1){
+            return response()->json([
+                'user' => $user,
+                'room' => $room,
+                'booking' => $booking
+            ], 200);
+        }else if($loggedUser->user_level == 2){
+            return response()->json([
+                'hotel' => $hotel,
+                'room' => $room,
+                'booking' => $booking
+            ], 200);
+        }else{
+            return response()->json(['message' => 'Akses Ditolak'], 400);
+        }
     }
 }
