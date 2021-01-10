@@ -46,49 +46,23 @@ class BookingController extends Controller
     public function create(request $request)
     {
         $user = Auth::user();
-        // $bookingTime = DB::table('booking')
-        //                 ->where('booking_status', '=', 1)
-        //                 ->where('check_in', '>', $request->check_in)
-        //                 ->where('check_out', '<', $request->check_out);
 
         if ($user->user_level == 2) {
-            // if ($bookingTime){
-            if (DB::table('booking')
-                ->where([
-                    ['booking_status', '=', 1],
-                    ['check_in', '=', $request->check_in],
-                    ['check_out', '<>', $request->check_out]
-                    ])
-                ->whereBetween('check_in', [$request->check_in, $request->check_out])
-                ->doesntExist()
-            ) {
-                $booking = new booking();
+            $booking = new booking();
                 $booking->user_id = $user->id;
                 $booking->room_id = $request->room_id;
                 $booking->booking_status = 1;
                 $booking->check_in = $request->check_in;
                 $booking->check_out = $request->check_out;
-
+                $booking->days_count = $request->days_count;
+                $booking->total_price = $request->total_price;
                 $booking->booking_time = now();
+
                 $booking->save();
 
-                return response()->json([
-                    'success' => true,
-                    'message' => "Berhasil"
-                ]);
-            } else{
-
-                return response()->json([
-                    'success' => false,
-                    'message' => "Room penuh"
-                ]);
-            }
+                return response()->json(['booking' => $booking], 200);
         }else{
-
-        return response()->json([
-            'success' => false,
-            'message' => "Gagal"
-        ]);
+            return response()->json(['message' => "Akses Ditolak"]);
         }
     }
 
