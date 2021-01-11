@@ -26,20 +26,59 @@ class HotelController extends Controller
         return response()->json(['hotel' => $hotel]);
     }
 
-    public function getHotelByParam(Request $request, $param){
-        if($param == 'location'){
-           //$hotel = hotel::where('hotel_location', $request->query('hotel_location'))->get(); 
-
-            $hotel = DB::table('hotel')
+    public function getHotelById($id){
+        $hotel = DB::table('hotel')
             ->leftJoin('room','hotel.id','=','room.hotel_id')
-            ->where('hotel.hotel_location',$request->query('hotel_location'))
+            ->where('hotel.id', $id)
             ->select(DB::raw(
                 'hotel.id,
                 hotel.hotel_name,
                 hotel.hotel_location,
                 hotel.hotel_desc,
-                hotel.hotel_picture, 
-                min(room.room_price) as hotel_price'
+                hotel.hotel_picture,
+                (CASE
+                    WHEN min(room.room_price) is null THEN "0"
+                    ELSE min(room.room_price)
+                END) as hotel_price'
+                )
+            )
+            ->groupBy([
+                'hotel.id',
+                'hotel.hotel_name',
+                'hotel.hotel_location',
+                'hotel.hotel_desc',
+                'hotel.hotel_picture',
+            ])
+            ->first();
+
+        $facility = DB::table('room')
+                ->join('room_facility','room.id','=','room_facility.room_id')
+                ->join('facility_category','facility_category.id','=','room_facility.facility_category_id')
+                ->where('hotel_id',$hotel->id)
+                ->distinct('facility_category.id')
+                ->select('facility_category.*')
+                ->get();
+
+        $hotel->facility = $facility;
+        
+        return response()->json(['hotel' => $hotel], 200);
+    }
+
+    public function getHotelByParam(Request $request, $param){
+        if($param == 'location'){
+            $hotel = DB::table('hotel')
+            ->leftJoin('room','hotel.id','=','room.hotel_id')
+            ->where('hotel.hotel_location', 'LIKE', "%".$request->query('hotel_location')."%")
+            ->select(DB::raw(
+                'hotel.id,
+                hotel.hotel_name,
+                hotel.hotel_location,
+                hotel.hotel_desc,
+                hotel.hotel_picture,
+                (CASE
+                    WHEN min(room.room_price) is null THEN "0"
+                    ELSE min(room.room_price)
+                END) as hotel_price'
                 )
             )
             ->groupBy([
@@ -50,9 +89,9 @@ class HotelController extends Controller
                 'hotel.hotel_picture',
             ])
             ->get();
-            return json_encode($hotel);
+
+            return response()->json(['hotelList' => $hotel], 200);
         }
-        
     }
 
     public function getHotelByOwner(){
@@ -99,10 +138,6 @@ class HotelController extends Controller
             ])
             ->get();
             
-            
-
-            
-
             $facilitiy = DB::table('room')
                 ->join('room_facility','room.id','=','room_facility.room_id')
                 ->join('facility_category','facility_category.id','=','room_facility.facility_category_id')

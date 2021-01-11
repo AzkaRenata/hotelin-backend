@@ -28,17 +28,18 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 
 
-Route::post('/user/register', [UserController::class, 'register']);
-Route::post('/user/registerCustomer', [UserController::class, 'registerCustomer']);
-Route::post('/user/login', [UserController::class, 'login']);
+Route::post('/user/register/owner', [UserController::class, 'register']);
+Route::post('/user/register/customer', [UserController::class, 'registerCustomer']);
+Route::post('/user/login/owner', [UserController::class, 'login']);
+Route::post('/user/login/customer', [UserController::class, 'loginCustomer']);
 Route::post('/auth/refresh_token', [UserController::class, 'refreshToken']);
 
 Route::middleware('jwt.verify')->group(function () {  
     Route::get('test', [UserController::class, 'validateToken']);   
 	Route::get('user', [UserController::class, 'index']);
-    Route::post('/user/update', [UserController::class, 'update']);
-    Route::post('/user/update-picture', [UserController::class, 'updatePicture']);
-    Route::post('/user/update-password', [UserController::class, 'updatePassword']);
+    Route::post('/user/update/user', [UserController::class, 'updateUser']);
+    Route::post('/user/update/picture', [UserController::class, 'updatePicture']);
+    Route::post('/user/update/password', [UserController::class, 'updatePassword']);
     Route::delete('/user/delete', [UserController::class, 'delete']);
     Route::get('/user/logout', [UserController::class, 'logout']);
 
@@ -47,6 +48,7 @@ Route::middleware('jwt.verify')->group(function () {
     Route::post('/hotel/create', [HotelController::class,'create']);
     Route::post('/hotel/update', [HotelController::class,'update']);
     Route::delete('/hotel/delete/{id}', [HotelController::class,'delete']);
+    Route::get('/hotel/detail-by-id/{id}', [HotelController::class,'getHotelById']);
     Route::get('/hotel/detail/', [HotelController::class,'getHotelByOwner']);
     Route::get('/hotel/profile', [HotelController::class,'getHotelProfile']);
     Route::post('/hotel/upload-picture', [HotelController::class,'uploadPicture']);
@@ -57,9 +59,11 @@ Route::middleware('jwt.verify')->group(function () {
     Route::post('/booking/update/{id}', [BookingController::class,'update']);
     Route::post('/booking/change-status/{id}/{status}', [BookingController::class,'updateBookingStatus']);
     Route::delete('/booking/delete/{id}', [BookingController::class,'delete']);
-    Route::get('/booking/list/{status_id?}', [BookingController::class,'showBookings']);
-    Route::get('/booking/show/{id}', [BookingController::class,'showBookingById']);
-    Route::get('/booking/detail/{id}', [BookingController::class,'findBookingType']);
+    Route::get('/booking/list/{status_id}', [BookingController::class,'showBookings']);
+    Route::get('/booking/detail/{id}', [BookingController::class,'showBookingById']);
+    // Route::get('/booking/detail/{id}', [BookingController::class,'findBookingType']);
+    Route::post('/booking/check', [BookingController::class,'checkBooking']);
+    Route::get('/booking/cancel/{id}', [BookingController::class,'cancelBooking']);
 
     Route::get('/room', [RoomController::class,'index']);
     Route::get('/room/list/{id}', [RoomController::class, 'getRoomById']);
@@ -68,8 +72,10 @@ Route::middleware('jwt.verify')->group(function () {
     Route::post('/room/upload-picture/{id}', [RoomController::class,'uploadPicture']);
     Route::delete('/room/delete/{id}', [RoomController::class,'delete']);
     Route::get('/room/detail/{id}', [RoomController::class,'getRoomDetail']);
-    Route::get('/room/hotel/{id}', [RoomController::class,'showRoomByHotel']);
+    Route::get('/room/hotel/{id}', [RoomController::class,'showRoomByHotel']); 
     Route::get('/room/list', [RoomController::class,'getHotelRoom']);
+    Route::post('/room/validate-time/{hotel_id}', [RoomController::class,'getRoomByTime']);
+    Route::post('/room/show-available/{id}', [RoomController::class,'getAvailableRoom']);
 
     Route::get('/facility-category', [FacilityCategoryController::class, 'index']);
     Route::post('/facility-category/create', [FacilityCategoryController::class, 'create']);
