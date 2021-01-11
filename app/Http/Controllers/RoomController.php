@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\room;
 use App\Models\hotel;
 use App\Models\booking;
+use App\Models\facility_category;
 use App\Models\room_facility;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
@@ -41,11 +42,11 @@ class RoomController extends Controller
                     ->leftJoin('room','hotel.id','=','room.hotel_id')
                     ->where('room.id',$id)
                     ->first();
-            $room = room::where('id', $id)->first();
-            $facility = room_facility::select('facility_category.*')
-                        ->leftJoin('facility_category','facility_category.id','=','room_facility.facility_category_id')
-                        ->where('room_facility.room_id',$id)
-                        ->get();
+        $room = room::where('id', $id)->first();
+        $facility = room_facility::select('facility_category.*')
+                    ->leftJoin('facility_category','facility_category.id','=','room_facility.facility_category_id')
+                    ->where('room_facility.room_id',$id)
+                    ->get();
 
         if($user->user_level == 1){
             return response()->json([
@@ -291,11 +292,13 @@ class RoomController extends Controller
          return $room;
      }
 
-     public function getAvailableRoom(Request $request, $id){
+    public function getAvailableRoom(Request $request, $id){
         $room = DB::table('room')
             ->select('*')
             ->where('room.hotel_id', $id)
             ->get();
+
+        
         
         $start = $request->check_in;
         $end = $request->check_out;
@@ -304,6 +307,14 @@ class RoomController extends Controller
 
         foreach($room as $rm){
             $rm->is_booked = false;
+
+            $facility = room_facility::select('facility_category.*')
+            ->leftJoin('facility_category','facility_category.id','=','room_facility.facility_category_id')
+            ->where('room_facility.room_id',$rm->id)
+            ->get();
+
+            $rm->facility = $facility;
+
             $booking = DB::table('booking')
                 ->select('*')
                 ->where('room_id', $rm->id)
@@ -326,7 +337,6 @@ class RoomController extends Controller
                 }
         }
         
-        //$room = $room::select('*')->where('is_booked', false);
         return response()->json(['roomList' => $room], 200);
-     }
+    }
 }
