@@ -27,7 +27,39 @@ class HotelController extends Controller
     }
 
     public function getHotelById($id){
-        $hotel = hotel::select()->where('id', $id)->first();
+        $hotel = DB::table('hotel')
+            ->leftJoin('room','hotel.id','=','room.hotel_id')
+            ->where('hotel.id', $id)
+            ->select(DB::raw(
+                'hotel.id,
+                hotel.hotel_name,
+                hotel.hotel_location,
+                hotel.hotel_desc,
+                hotel.hotel_picture,
+                (CASE
+                    WHEN min(room.room_price) is null THEN "0"
+                    ELSE min(room.room_price)
+                END) as hotel_price'
+                )
+            )
+            ->groupBy([
+                'hotel.id',
+                'hotel.hotel_name',
+                'hotel.hotel_location',
+                'hotel.hotel_desc',
+                'hotel.hotel_picture',
+            ])
+            ->first();
+
+        $facility = DB::table('room')
+                ->join('room_facility','room.id','=','room_facility.room_id')
+                ->join('facility_category','facility_category.id','=','room_facility.facility_category_id')
+                ->where('hotel_id',$hotel->id)
+                ->distinct('facility_category.id')
+                ->select('facility_category.*')
+                ->get();
+
+        $hotel->facility = $facility;
         
         return response()->json(['hotel' => $hotel], 200);
     }
@@ -57,8 +89,7 @@ class HotelController extends Controller
                 'hotel.hotel_picture',
             ])
             ->get();
-            
-            //return json_encode($hotel);
+
             return response()->json(['hotelList' => $hotel], 200);
         }
     }
@@ -107,10 +138,6 @@ class HotelController extends Controller
             ])
             ->get();
             
-            
-
-            
-
             $facilitiy = DB::table('room')
                 ->join('room_facility','room.id','=','room_facility.room_id')
                 ->join('facility_category','facility_category.id','=','room_facility.facility_category_id')
