@@ -107,13 +107,13 @@ class HotelController extends Controller
 
     public function getHotelProfile(){
         $user = Auth::user();
-        $hotel_id = $user->hotel->id;
+        $isExist = hotel::select()->where('user_id', $user->id)->first();
 
-        if($user->user_level == 1){
+        if($user->user_level == 1 && $isExist != null){
             $hotel = DB::table('hotel')
             ->leftJoin('room','hotel.id','=','room.hotel_id')
             ->leftJoin('review','hotel.id','=','review.hotel_id')
-            ->where('hotel.id',$hotel_id)
+            ->where('hotel.id',$user->hotel->id)
             ->select(DB::raw(
                 'hotel.id,
                 hotel.hotel_name,
@@ -125,7 +125,10 @@ class HotelController extends Controller
                     WHEN avg(review.hotel_rating) is null THEN "0"
                     ELSE avg(review.hotel_rating)
                 END) as hotel_rating, 
-                min(room.room_price) as hotel_price'
+                (CASE
+                    WHEN min(room.room_price) is null THEN "0"
+                    ELSE min(room.room_price)
+                END) as hotel_price'
                 )
             )
             ->groupBy([
@@ -136,12 +139,12 @@ class HotelController extends Controller
                 'hotel.hotel_picture',
                 'hotel.user_id'
             ])
-            ->get();
+            ->first();
             
             $facilitiy = DB::table('room')
                 ->join('room_facility','room.id','=','room_facility.room_id')
                 ->join('facility_category','facility_category.id','=','room_facility.facility_category_id')
-                ->where('hotel_id',$hotel_id)
+                ->where('hotel_id',$hotel->id)
                 ->distinct('facility_category.id')
                 ->select('facility_category.*')
                 ->get();
@@ -150,9 +153,12 @@ class HotelController extends Controller
             return response()->json([
                 'hotel' => $hotel,
                 'facility' => $facilitiy,
-                'room' => $user->hotel->rooms
+                'room' => $user->hotel->rooms,
+                'error' => false
                 ]);
-        } else {
+        } else if($user->user_level == 1 && !$isExist != null){
+            return response()->json(['error' => true]);
+        }else{
             return "akses ditolak";
         }
     }
@@ -198,7 +204,7 @@ class HotelController extends Controller
         $checkUser = hotel::firstOrNew([
             'user_id' => $user->id
         ]);
-        
+
         if($user->user_level == 1 && !$checkUser->exists){
             $hotel->hotel_name = $request->hotel_name;
             $hotel->hotel_location = $request->hotel_location;
