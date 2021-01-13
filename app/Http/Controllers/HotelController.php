@@ -204,7 +204,7 @@ class HotelController extends Controller
         $checkUser = hotel::firstOrNew([
             'user_id' => $user->id
         ]);
-        
+
         if($user->user_level == 1 && !$checkUser->exists){
             $hotel->hotel_name = $request->hotel_name;
             $hotel->hotel_location = $request->hotel_location;
