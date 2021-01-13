@@ -139,7 +139,7 @@ class HotelController extends Controller
                 'hotel.hotel_picture',
                 'hotel.user_id'
             ])
-            ->first();
+            ->get();
             
             $facilitiy = DB::table('room')
                 ->join('room_facility','room.id','=','room_facility.room_id')
