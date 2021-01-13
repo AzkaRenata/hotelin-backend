@@ -153,8 +153,7 @@ class HotelController extends Controller
             return response()->json([
                 'hotel' => $hotel,
                 'facility' => $facilitiy,
-                'room' => $user->hotel->rooms,
-                'error' => false
+                'room' => $user->hotel->rooms
                 ]);
         } else if($user->user_level == 1 && !$isExist != null){
             return response()->json(['error' => true]);
