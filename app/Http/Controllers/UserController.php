@@ -60,7 +60,11 @@ class UserController extends Controller
 
         try {
             if (! $token = JWTAuth::attempt($credentials)) {
-                return response()->json(['error' => 'invalid_credentials'], 400);
+                if(!User::where('email','=', $request->email)->exists()){
+                    return response()->json(['error' => 'Username Not Found'], 400);
+                } else {
+                    return response()->json(['error' => 'Wrong Password'], 401);
+                }
             }
         } catch (JWTException $e) {
             return response()->json(['error' => 'could_not_create_token'], 500);
@@ -158,15 +162,12 @@ class UserController extends Controller
         ], 200);
     }
 
-    public function register(Request $request)
+    public function registerOwner(Request $request)
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'username' => 'required|string|max:255|unique:users',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            //'user_level' => 'required|integer|max:2|min:1',
-            'user_picture' => 'image|mimes:jpeg,png,jpg|max:2048',
         ]);
         
 
@@ -175,22 +176,10 @@ class UserController extends Controller
         }
 
         $user = new User;
-        $user->username = $request->username;
         $user->name = $request->name;
         $user->email = $request->email;
         $user->password = Hash::make($request->password);
         $user->user_level = 1;
-
-        if(!empty($request->file('user_picture'))) {
-            $file = $request->file('user_picture');
-            $upload_dest = 'user_picture';
-            $extension = $file->extension();
-            $path = $file->storeAs(
-                $upload_dest, $request->username.'.'.$extension
-            );
-            $user->user_picture = $path;
-
-        } 
         
         $user->save();
         $token = JWTAuth::fromUser($user);

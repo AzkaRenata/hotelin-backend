@@ -21,6 +21,7 @@ class CreateBookingTable extends Migration
             $table->dateTime('check_in', 0);
             $table->dateTime('check_out', 0);
             $table->tinyInteger('days_count');
+            $table->double('total_price',10,2);
             $table->timestamp('booking_time', 0)->nullable();
         });
     }
