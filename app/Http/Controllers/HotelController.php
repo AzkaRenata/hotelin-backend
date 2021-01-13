@@ -113,7 +113,7 @@ class HotelController extends Controller
             $hotel = DB::table('hotel')
             ->leftJoin('room','hotel.id','=','room.hotel_id')
             ->leftJoin('review','hotel.id','=','review.hotel_id')
-            ->where('hotel.id',$user->hotel->id)
+            ->where('hotel.id', $user->hotel->id)
             ->select(DB::raw(
                 'hotel.id,
                 hotel.hotel_name,
@@ -139,12 +139,12 @@ class HotelController extends Controller
                 'hotel.hotel_picture',
                 'hotel.user_id'
             ])
-            ->first();
+            ->get();
             
             $facilitiy = DB::table('room')
                 ->join('room_facility','room.id','=','room_facility.room_id')
                 ->join('facility_category','facility_category.id','=','room_facility.facility_category_id')
-                ->where('hotel_id',$hotel->id)
+                ->where('hotel_id',$user->hotel->id)
                 ->distinct('facility_category.id')
                 ->select('facility_category.*')
                 ->get();
