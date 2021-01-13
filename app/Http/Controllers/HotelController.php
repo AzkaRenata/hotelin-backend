@@ -125,8 +125,11 @@ class HotelController extends Controller
                     WHEN avg(review.hotel_rating) is null THEN "0"
                     ELSE avg(review.hotel_rating)
                 END) as hotel_rating, 
-                min(room.room_price) as hotel_price'
-                )
+                (CASE
+                    WHEN min(room.room_price) is null THEN "0"
+                    ELSE min(room.room_price)
+                END) as hotel_price'
+            )
             )
             ->groupBy([
                 'hotel.id',
@@ -198,7 +201,7 @@ class HotelController extends Controller
         $checkUser = hotel::firstOrNew([
             'user_id' => $user->id
         ]);
-        
+
         if($user->user_level == 1 && !$checkUser->exists){
             $hotel->hotel_name = $request->hotel_name;
             $hotel->hotel_location = $request->hotel_location;
